@@ -17,6 +17,6 @@ public class FachadaGerente {
     }
 
     public String gerarRelatorio(LocalDate inicio, LocalDate fim) {
-        return negocioGerente.gerarRelatorio();
+        return negocioGerente.gerarRelatorio(inicio, fim);
     }
 }
