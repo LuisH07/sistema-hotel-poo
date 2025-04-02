@@ -11,6 +11,7 @@ public class NegocioCliente {
         this.repositorioClientes = repositorioClientes;
     }
 
-
-
+    public Cliente buscarCliente(String cpf){
+        // Implementar metodo que busca cliente pelo CPF no repositorio de clientes
+    }
 }
