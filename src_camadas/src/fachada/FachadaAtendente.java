@@ -4,7 +4,7 @@ import negocio.NegocioAtendente;
 import negocio.entidade.Reserva;
 import java.util.List;
 
-ppublic class FachadaAtendente {
+public class FachadaAtendente {
     private NegocioAtendente negocioAtendente;
 
     public FachadaAtendente(NegocioAtendente negocioAtendente) {
