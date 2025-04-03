@@ -10,6 +10,8 @@ public class TelaInicial {
 
     public TelaInicial() {
         scanner = new Scanner(System.in);
+        telaCliente = new TelaCliente();
+        telaFuncionario = new TelaFuncionario();
     }
 
     public void iniciar() {
