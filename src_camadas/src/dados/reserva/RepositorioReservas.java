@@ -1,6 +1,7 @@
 package dados.reserva;
 
 import negocio.entidade.Reserva;
+import negocio.excecao.reserva.ReservaInvalidaException;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
@@ -33,12 +34,18 @@ public class RepositorioReservas {
         }
     }
 
-    public void adicionarReserva(Reserva reserva) {
+    public void adicionarReserva(Reserva reserva) throws ReservaInvalidaException {
+        if (reserva == null) {
+            throw new ReservaInvalidaException("Reserva não pode ser nula.");
+        }
         reservas.add(reserva);
         salvarReservas();
     }
 
-    public Reserva buscarReservaPorId(String id) {
+    public Reserva buscarReservaPorId(String id) throws ReservaInvalidaException {
+        if (id == null || id.isEmpty()) {
+            throw new ReservaInvalidaException("ID da reserva não pode ser nulo ou vazio.");
+        }
         return reservas.stream().filter(reserva -> reserva.getIdReserva().equals(id)).findFirst().orElse(null);
     }
 
@@ -46,11 +53,17 @@ public class RepositorioReservas {
         return new ArrayList<>(reservas);
     }
 
-    public List<Reserva> listarReservasPorCliente(String cpf) {
+    public List<Reserva> listarReservasPorCliente(String cpf) throws ReservaInvalidaException {
+        if (cpf == null || cpf.isEmpty()) {
+            throw new ReservaInvalidaException("CPF do cliente não pode ser nulo ou vazio.");
+        }
         return reservas.stream().filter(reserva -> reserva.getCliente().getCpf().equals(cpf)).toList();
     }
 
-    public List<Reserva> listarReservasPorStatus(String status) {
+    public List<Reserva> listarReservasPorStatus(String status) throws ReservaInvalidaException {
+        if (status == null || status.isEmpty()) {
+            throw new ReservaInvalidaException("Status da reserva não pode ser nulo ou vazio.");
+        }
         return reservas.stream().filter(reserva -> reserva.getStatus().equals(status)).toList();
     }
 
