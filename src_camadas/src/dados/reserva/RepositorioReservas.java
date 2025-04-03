@@ -21,7 +21,7 @@ public class RepositorioReservas {
             return new ArrayList<>();
         } catch (IOException | ClassNotFoundException excecao) {
             excecao.printStackTrace();
-            return new ArrayList<>();
+            return new ArrayList<Reserva>();
         }
     }
 
@@ -39,7 +39,7 @@ public class RepositorioReservas {
     }
 
     public Reserva buscarReservaPorId(String id) {
-        return reservas.stream().filter(r -> r.getIdReserva().equals(id)).findFirst().orElse(null);
+        return reservas.stream().filter(reserva -> reserva.getIdReserva().equals(id)).findFirst().orElse(null);
     }
 
     public List<Reserva> listarReservas() {
@@ -47,14 +47,14 @@ public class RepositorioReservas {
     }
 
     public List<Reserva> listarReservasPorCliente(String cpf) {
-        return reservas.stream().filter(r -> r.getCliente().getCpf().equals(cpf)).toList();
+        return reservas.stream().filter(reserva -> reserva.getCliente().getCpf().equals(cpf)).toList();
     }
 
     public List<Reserva> listarReservasPorStatus(String status) {
-        return reservas.stream().filter(r -> r.getStatus().equals(status)).toList();
+        return reservas.stream().filter(reserva -> reserva.getStatus().equals(status)).toList();
     }
 
-    public int tamanho() {
+    public int getTamanho() {
         return reservas.size();
     }
 }
