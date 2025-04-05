@@ -1,7 +1,7 @@
 package negocio.excecao.reserva;
 
 public class ReservaInvalidaException extends ReservaException {
-    public ReservaInvalidaException(String msg) {
-        super(msg);
+    public ReservaInvalidaException(String mensagem) {
+        super(mensagem);
     }
 }
