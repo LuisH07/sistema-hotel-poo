@@ -12,29 +12,29 @@ public class RepositorioClientes {
     private final String NOME_ARQUIVO = "clientes.dat";
     private List<Cliente> clientes;
 
-    public RepositorioClientes() throws PersistenciaClienteException {
+    public RepositorioClientes() throws ClientePersistenciaException {
         this.clientes = carregarClientes();
     }
 
-    private List<Cliente> carregarClientes() throws PersistenciaClienteException {
+    private List<Cliente> carregarClientes() throws ClientePersistenciaException {
         try (ObjectInputStream arquivoLeitura = new ObjectInputStream(new FileInputStream(NOME_ARQUIVO))) {
             return (List<Cliente>) arquivoLeitura.readObject();
         } catch (FileNotFoundException excecao) {
             return new ArrayList<>();
         } catch (IOException | ClassNotFoundException excecao) {
-            throw new PersistenciaClienteException("Falha ao carregar clientes do arquivo", excecao);
+            throw new ClientePersistenciaException("Falha ao carregar clientes do arquivo", excecao);
         }
     }
 
-    public void salvarClientes() throws PersistenciaClienteException {
+    public void salvarClientes() throws ClientePersistenciaException {
         try (ObjectOutputStream arquivoEscrita = new ObjectOutputStream(new FileOutputStream(NOME_ARQUIVO))) {
             arquivoEscrita.writeObject(clientes);
         } catch (IOException excecao) {
-            throw new PersistenciaClienteException("Falha ao salvar clientes no arquivo", excecao);
+            throw new ClientePersistenciaException("Falha ao salvar clientes no arquivo", excecao);
         }
     }
 
-    public void adicionarCliente(Cliente cliente) throws ClienteInvalidoException, ClienteDuplicadoException, PersistenciaClienteException {
+    public void adicionarCliente(Cliente cliente) throws ClienteInvalidoException, ClienteDuplicadoException, ClientePersistenciaException {
         if (cliente == null) {
             throw new ClienteInvalidoException("Cliente não pode ser nulo.");
         }
