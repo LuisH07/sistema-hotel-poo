@@ -1,8 +1,8 @@
 package dados.quartos;
 
 import excecoes.dados.*;
+import excecoes.negocio.quarto.*;
 import negocio.entidade.QuartoAbstrato;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,10 @@ import java.util.List;
 public class RepositorioQuartos {
 
     private final String NOME_ARQUIVO = "quartos.dat";
-    private List<QuartoAbstrato> repositorioQuartos;
+    private List<QuartoAbstrato> quartos;
 
     public RepositorioQuartos() throws ErroAoCarregarDadosException {
-        this.repositorioQuartos = carregarQuartos();
+        this.quartos = carregarQuartos();
     }
 
     private List<QuartoAbstrato> carregarQuartos() throws ErroAoCarregarDadosException {
@@ -28,35 +28,52 @@ public class RepositorioQuartos {
 
     public void salvarQuartos() throws ErroAoSalvarDadosException {
         try (ObjectOutputStream arquivoEscrita = new ObjectOutputStream(new FileOutputStream(NOME_ARQUIVO))) {
-            arquivoEscrita.writeObject(repositorioQuartos);
+            arquivoEscrita.writeObject(quartos);
         } catch (IOException excecao) {
             throw new ErroAoSalvarDadosException("Falha ao salvar quartos no arquivo");
         }
     }
 
-    public void adicionarQuarto(QuartoAbstrato quarto) throws ErroAoSalvarDadosException {
-        repositorioQuartos.add(quarto);
+    public void adicionarQuarto(QuartoAbstrato quarto) throws QuartoDuplicadoException, ErroAoSalvarDadosException {
+        if (existe(quarto)) {
+            throw new QuartoDuplicadoException(quarto.getNumeroIdentificador());
+        }
+        quartos.add(quarto);
         salvarQuartos();
     }
 
-    public QuartoAbstrato buscarQuartoPorNumero(String numero) {
-        return repositorioQuartos.stream()
-                .filter(quarto -> quarto.getNumeroIdentificador().equals(numero))
+    public boolean existe(QuartoAbstrato quarto) {
+        return quartos.stream()
+                .anyMatch(q -> q.getNumeroIdentificador().equals(quarto.getNumeroIdentificador()));
+    }
+
+    public QuartoAbstrato buscarQuartoPorNumero(String numero) throws QuartoNaoEncontradoException {
+        return quartos.stream()
+                .filter(q -> q.getNumeroIdentificador().equals(numero))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new QuartoNaoEncontradoException(numero));
     }
 
     public List<QuartoAbstrato> listarQuartos() {
-        return new ArrayList<>(repositorioQuartos);
+        return new ArrayList<>(quartos);
     }
 
-    public void removerQuarto(String numero) throws QuartoPersistenciaException {
-        QuartoAbstrato quarto = obterQuartoPorNumero(numero);
-        repositorioQuartos.remove(quarto);
+    public void removerQuarto(String numero) throws QuartoNaoEncontradoException, ErroAoSalvarDadosException {
+        QuartoAbstrato quarto = buscarQuartoPorNumero(numero);
+        quartos.remove(quarto);
+        salvarQuartos();
+    }
+
+    public void atualizarQuarto(QuartoAbstrato quartoAtualizado)
+            throws QuartoNaoEncontradoException, ErroAoSalvarDadosException {
+
+        QuartoAbstrato quartoExistente = buscarQuartoPorNumero(quartoAtualizado.getNumeroIdentificador());
+        int index = quartos.indexOf(quartoExistente);
+        quartos.set(index, quartoAtualizado);
         salvarQuartos();
     }
 
     public int getTamanho() {
-        return repositorioQuartos.size();
+        return quartos.size();
     }
 }
