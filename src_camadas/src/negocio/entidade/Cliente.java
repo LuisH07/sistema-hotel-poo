@@ -2,6 +2,8 @@ package negocio.entidade;
 
 import dados.cliente.RepositorioClientes;
 import dados.reserva.RepositorioReservas;
+import excecoes.negocio.reserva.ReservaException;
+import excecoes.dados.ReservaPersistenciaException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -12,7 +14,7 @@ public class Cliente {
     private String email;
     private RepositorioReservas historicoPessoal;
 
-    public Cliente(String cpf, String nome, String email, RepositorioClientes clientes) {
+    public Cliente(String cpf, String nome, String email, RepositorioClientes clientes) throws ReservaPersistenciaException {
         this.cpf = cpf;
         this.nome = nome;
         this.email = email;
@@ -68,7 +70,7 @@ public class Cliente {
         }
     }
 
-    public void cancelarReserva(Reserva reserva) {
+    public void cancelarReserva(Reserva reserva) throws ReservaException {
         if (historicoPessoal.buscarReservaPorId(reserva.getIdReserva()) != null) {
             reserva.setStatus("Cancelada");
             reserva.getQuarto().setDisponibilidade(true);

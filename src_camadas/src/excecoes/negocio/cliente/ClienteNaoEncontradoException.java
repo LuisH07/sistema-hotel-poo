@@ -1,4 +1,4 @@
-package negocio.excecao.cliente;
+package excecoes.negocio.cliente;
 
 public class ClienteNaoEncontradoException extends ClienteException {
     public ClienteNaoEncontradoException(String cpf) {

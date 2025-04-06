@@ -1,7 +1,9 @@
 package dados.reserva;
 
+import excecoes.dados.*;
+import negocio.entidade.QuartoAbstrato;
 import negocio.entidade.Reserva;
-import negocio.excecao.reserva.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
@@ -11,78 +13,75 @@ public class RepositorioReservas {
     private List<Reserva> reservas;
     private final String NOME_ARQUIVO = "reservas.dat";
 
-    public RepositorioReservas() throws ReservaPersistenciaException {
+    public RepositorioReservas() throws ErroAoCarregarDadosException {
         this.reservas = carregarReservas();
     }
 
-    private List<Reserva> carregarReservas() throws ReservaPersistenciaException {
+    private List<Reserva> carregarReservas() throws ErroAoCarregarDadosException {
         try (ObjectInputStream arquivoLeitura = new ObjectInputStream(new FileInputStream(NOME_ARQUIVO))) {
             return (List<Reserva>) arquivoLeitura.readObject();
         } catch (FileNotFoundException excecao) {
-            return new ArrayList<>();
+            return new ArrayList<Reserva>();
         } catch (IOException | ClassNotFoundException excecao) {
-            throw new ReservaPersistenciaException("Falha ao carregar reservas do arquivo", excecao);
+            throw new ErroAoCarregarDadosException("Falha ao carregar reservas do arquivo");
         }
     }
 
-    public void salvarReservas() throws ReservaPersistenciaException {
+    public void salvarReservas() throws ErroAoSalvarDadosException {
         try (ObjectOutputStream arquivoEscrita = new ObjectOutputStream(new FileOutputStream(NOME_ARQUIVO))) {
             arquivoEscrita.writeObject(reservas);
         } catch (IOException excecao) {
-            throw new ReservaPersistenciaException("Falha ao salvar reservas no arquivo", excecao);
+            throw new ErroAoSalvarDadosException("Falha ao salvar reservas no arquivo");
         }
     }
 
-    public void adicionarReserva(Reserva reserva) throws ReservaException {
-        if (reserva == null) {
-            throw new ReservaInvalidaException("Reserva não pode ser nula.");
-        }
-        if (buscarReservaPorId(reserva.getIdReserva()) != null) {
-            throw new ReservaDuplicadaException(reserva.getIdReserva());
-        }
-        try {
+    public void adicionarReserva(Reserva reserva) throws ErroAoSalvarDadosException {
             reservas.add(reserva);
             salvarReservas();
-        } catch (Exception e) {
-            throw new ReservaPersistenciaException("Falha ao salvar reserva", e);
+    }
+
+    public boolean existe(Reserva novaReserva) {
+        return reservas.stream().anyMatch(reserva -> reserva.getIdReserva().equals(novaReserva.getIdReserva()));
+    }
+
+    public Reserva buscarReservaPorId(String idReserva) {
+        return reservas.stream()
+                .filter(reserva -> reserva.getIdReserva().equals(idReserva))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void atualizarReserva(Reserva novaReserva) throws ErroAoSalvarDadosException {
+        for (int indice = 0; indice < reservas.size(); indice++) {
+            Reserva reserva = reservas.get(indice);
+            if (reserva.getIdReserva().equals(novaReserva.getIdReserva())) {
+                reservas.set(indice, novaReserva);
+                salvarReservas();
+                break;
+            }
         }
     }
 
-    public Reserva buscarReservaPorId(String id) throws ReservaException {
-        if (id == null || id.isEmpty()) {
-            throw new ReservaInvalidaException("ID da reserva não pode ser nulo ou vazio.");
-        }
-        Reserva encontrada = reservas.stream()
-                .filter(reserva -> reserva.getIdReserva().equals(id))
-                .findFirst()
-                .orElse(null);
-
-        if (encontrada == null) {
-            throw new ReservaNaoEncontradaException(id);
-        }
-        return encontrada;
+    public void removerReserva(String idReserva) throws ErroAoSalvarDadosException {
+        reservas.removeIf(reserva -> reserva.getIdReserva().equals(idReserva));
+        salvarReservas();
     }
 
     public List<Reserva> listarReservas() {
-        return new ArrayList<>(reservas);
+        return new ArrayList<Reserva>(reservas);
     }
 
-    public List<Reserva> listarReservasPorCliente(String cpf) throws ReservaInvalidaException {
-        if (cpf == null || cpf.isEmpty()) {
-            throw new ReservaInvalidaException("CPF do cliente não pode ser nulo ou vazio.");
-        }
+    public List<Reserva> listarReservasPorCliente(String cpf) {
         return reservas.stream().filter(reserva -> reserva.getCliente().getCpf().equals(cpf)).toList();
     }
 
-    public List<Reserva> listarReservasPorStatus(String status) throws ReservaInvalidaException {
-        if (status == null || status.isEmpty()) {
-            throw new ReservaInvalidaException("Status da reserva não pode ser nulo ou vazio.");
-        }
+    public List<Reserva> listarReservasPorStatus(String status) {
         return reservas.stream().filter(reserva -> reserva.getStatus().equals(status)).toList();
     }
 
-    public int getTamanho() {
-        return reservas.size();
+    public List<Reserva> listarReservasPorQuarto(QuartoAbstrato quarto) {
+        return reservas.stream().filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(quarto.getNumeroIdentificador())).toList();
     }
+
 }
 

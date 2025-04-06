@@ -1,4 +1,4 @@
-package negocio.excecao.quarto;
+package excecoes.negocio.quarto;
 
 public class QuartoDuplicadoException extends QuartoException {
     public QuartoDuplicadoException(String numero) {
