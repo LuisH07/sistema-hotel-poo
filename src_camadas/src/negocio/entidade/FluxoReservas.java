@@ -1,9 +1,11 @@
 package negocio.entidade;
 
+import java.time.LocalDate;
+
 public interface FluxoReservas {
 
-    public abstract void fazerReserva(Cliente cliente);
-    public abstract void cancelarReserva(String idReserva);
-    public abstract void consultarHistorico();
+    public void fazerReserva(Cliente cliente, QuartoAbstrato quarto, LocalDate dataInicio, LocalDate dataFim);
+    public void cancelarReserva(String idReserva);
+    public void consultarHistorico();
 
 }

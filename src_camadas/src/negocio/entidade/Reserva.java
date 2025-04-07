@@ -3,6 +3,8 @@ package negocio.entidade;
 import negocio.entidade.enums.StatusDaReserva;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Reserva {
     private String idReserva;
@@ -14,9 +16,9 @@ public class Reserva {
     private double valorTotal;
     private StatusDaReserva status;
 
-    public Reserva(String idReserva, Cliente cliente, QuartoAbstrato quarto, LocalDate dataInicio,
+    public Reserva(Cliente cliente, QuartoAbstrato quarto, LocalDate dataInicio,
                    LocalDate dataFim) {
-        this.idReserva = idReserva;
+        idReserva = gerarIdReserva();
         this.cliente = cliente;
         this.quarto = quarto;
         this.dataInicio = dataInicio;
@@ -24,6 +26,12 @@ public class Reserva {
         this.valorDiaria = quarto.getPrecoDiaria();
         this.valorTotal = calcularValorTotal();
         this.status = StatusDaReserva.ATIVA;
+    }
+
+    private String gerarIdReserva() {
+        LocalDateTime horario = LocalDateTime.now();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return "RES" + horario.format(formato);
     }
 
     private double calcularValorTotal() {

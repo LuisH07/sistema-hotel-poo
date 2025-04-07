@@ -36,6 +36,7 @@ public class RepositorioReservas {
     }
 
     public void adicionarReserva(Reserva reserva) throws ErroAoSalvarDadosException {
+
             reservas.add(reserva);
             salvarReservas();
     }
