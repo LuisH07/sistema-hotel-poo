@@ -80,8 +80,8 @@ public class RepositorioReservas {
         return reservas.stream().filter(reserva -> reserva.getStatus().equals(status)).toList();
     }
 
-    public List<Reserva> listarReservasPorQuarto(QuartoAbstrato quarto) {
-        return reservas.stream().filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(quarto.getNumeroIdentificador())).toList();
+    public List<Reserva> listarReservasPorQuarto(String numeroIdentificador) {
+        return reservas.stream().filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(numeroIdentificador)).toList();
     }
 
 }
