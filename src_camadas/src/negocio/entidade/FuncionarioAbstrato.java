@@ -23,4 +23,18 @@ public abstract class FuncionarioAbstrato implements Serializable {
         return cargo.getSenha();
     }
 
+    public boolean isValido() {
+        if (cargo == null || getEmail() == null || getSenha() == null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Funcionario:" + "\n" +
+                "cargo = " + cargo + "\n" +
+                "email = " + getEmail() + "\n" +
+                "senha = " + getSenha() + "\n";
+    }
 }

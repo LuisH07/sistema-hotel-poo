@@ -59,6 +59,10 @@ public class RepositorioQuartos {
         }
     }
 
+    public boolean existeQuarto(String numero) {
+        return quartos.stream().anyMatch(quarto -> quarto.getNumeroIdentificador().equals(numero));
+    }
+
     public List<QuartoAbstrato> listarQuartos() {
         return new ArrayList<>(quartos);
     }

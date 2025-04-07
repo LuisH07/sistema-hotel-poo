@@ -32,6 +32,13 @@ public abstract class QuartoAbstrato {
         this.precoDiaria = precoDiaria;
     }
 
+    public boolean isValido() {
+        if (numeroIdentificador == null || capacidade == null || precoDiaria <= 0 || getCategoria() == null) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public String toString() {
         return "Quarto:" + "\n" +

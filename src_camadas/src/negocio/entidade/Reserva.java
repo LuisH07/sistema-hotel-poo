@@ -75,6 +75,13 @@ public class Reserva {
         this.status = status;
     }
 
+    public boolean isValida() {
+        if (idReserva == null || cliente == null || quarto == null || dataInicio == null || dataFim == null || valorDiaria <= 0 || valorTotal <= 0 || status == null) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public String toString() {
         return "Reserva:" + "\n" +
