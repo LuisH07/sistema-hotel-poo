@@ -1,7 +1,6 @@
 package dados.quartos;
 
 import excecoes.dados.*;
-import excecoes.negocio.quarto.*;
 import negocio.entidade.QuartoAbstrato;
 import java.io.*;
 import java.util.ArrayList;
@@ -34,10 +33,7 @@ public class RepositorioQuartos {
         }
     }
 
-    public void adicionarQuarto(QuartoAbstrato quarto) throws QuartoDuplicadoException, ErroAoSalvarDadosException {
-        if (existe(quarto)) {
-            throw new QuartoDuplicadoException(quarto.getNumeroIdentificador());
-        }
+    public void adicionarQuarto(QuartoAbstrato quarto) throws ErroAoSalvarDadosException {
         quartos.add(quarto);
         salvarQuartos();
     }
@@ -47,26 +43,24 @@ public class RepositorioQuartos {
                 .anyMatch(q -> q.getNumeroIdentificador().equals(quarto.getNumeroIdentificador()));
     }
 
-    public QuartoAbstrato buscarQuartoPorNumero(String numero) throws QuartoNaoEncontradoException {
+    public QuartoAbstrato buscarQuartoPorNumero(String numero){
         return quartos.stream()
                 .filter(q -> q.getNumeroIdentificador().equals(numero))
                 .findFirst()
-                .orElseThrow(() -> new QuartoNaoEncontradoException(numero));
+                .orElseThrow(null);
     }
 
     public List<QuartoAbstrato> listarQuartos() {
         return new ArrayList<>(quartos);
     }
 
-    public void removerQuarto(String numero) throws QuartoNaoEncontradoException, ErroAoSalvarDadosException {
+    public void removerQuarto(String numero) throws ErroAoSalvarDadosException {
         QuartoAbstrato quarto = buscarQuartoPorNumero(numero);
         quartos.remove(quarto);
         salvarQuartos();
     }
 
-    public void atualizarQuarto(QuartoAbstrato quartoAtualizado)
-            throws QuartoNaoEncontradoException, ErroAoSalvarDadosException {
-
+    public void atualizarQuarto(QuartoAbstrato quartoAtualizado) throws ErroAoSalvarDadosException {
         QuartoAbstrato quartoExistente = buscarQuartoPorNumero(quartoAtualizado.getNumeroIdentificador());
         int index = quartos.indexOf(quartoExistente);
         quartos.set(index, quartoAtualizado);
