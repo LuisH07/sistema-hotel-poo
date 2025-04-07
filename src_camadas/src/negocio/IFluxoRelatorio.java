@@ -1,6 +1,6 @@
 package negocio;
 
-public interface FluxoRelatorio {
+public interface IFluxoRelatorio {
 
     public void gerarRelatorio();
 

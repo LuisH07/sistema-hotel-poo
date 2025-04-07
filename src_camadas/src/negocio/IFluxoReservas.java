@@ -5,7 +5,7 @@ import negocio.entidade.QuartoAbstrato;
 
 import java.time.LocalDate;
 
-public interface FluxoReservas {
+public interface IFluxoReservas {
 
     default void fazerReserva(Cliente cliente, QuartoAbstrato quarto, LocalDate dataInicio,
                               LocalDate dataFim){}
