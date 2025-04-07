@@ -21,7 +21,7 @@ public class RepositorioReservas {
         try (ObjectInputStream arquivoLeitura = new ObjectInputStream(new FileInputStream(NOME_ARQUIVO))) {
             return (List<Reserva>) arquivoLeitura.readObject();
         } catch (FileNotFoundException excecao) {
-            return new ArrayList<Reserva>();
+            return new ArrayList<>();
         } catch (IOException | ClassNotFoundException excecao) {
             throw new ErroAoCarregarDadosException("Falha ao carregar reservas do arquivo");
         }
@@ -40,7 +40,7 @@ public class RepositorioReservas {
             salvarReservas();
     }
 
-    public boolean existe(Reserva novaReserva) {
+    public boolean existeReserva(Reserva novaReserva) {
         return reservas.stream().anyMatch(reserva -> reserva.getIdReserva().equals(novaReserva.getIdReserva()));
     }
 

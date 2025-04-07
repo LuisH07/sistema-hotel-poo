@@ -1,15 +1,11 @@
 package dados.cliente;
 
-import excecoes.dados.ClienteJaCadastradoException;
-import excecoes.dados.ErroAoCarregarDadosException;
-import excecoes.dados.ErroAoSalvarDadosException;
-import excecoes.negocio.cliente.ClienteJaExisteException;
+import excecoes.dados.*;
 import negocio.entidade.Cliente;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class RepositorioClientes {
 
@@ -38,15 +34,12 @@ public class RepositorioClientes {
         }
     }
 
-    public void adicionarCliente(Cliente cliente) throws ErroAoSalvarDadosException, ClienteJaExisteException {
-        if (existe(cliente.getCpf())) {
-            throw new ClienteJaExisteException("Cliente com CPF " + cliente.getCpf() + " já cadastrado.");
-        }
+    public void adicionarCliente(Cliente cliente) throws ErroAoSalvarDadosException {
         clientes.add(cliente);
         salvarClientes();
     }
 
-    public boolean existe(String cpf) {
+    public boolean existeCliente(String cpf) {
         return clientes.stream().anyMatch(cliente -> cliente.getCpf().equals(cpf));
     }
 
@@ -55,6 +48,22 @@ public class RepositorioClientes {
                 .filter(cliente -> cliente.getCpf().equals(cpf))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public void atualizarCliente(Cliente novoCliente) throws ErroAoSalvarDadosException {
+        for (int indice = 0; indice < clientes.size(); indice++) {
+            Cliente cliente = clientes.get(indice);
+            if (cliente.getCpf().equals(novoCliente.getCpf())) {
+                clientes.set(indice, novoCliente);
+                salvarClientes();
+                break;
+            }
+        }
+    }
+
+    public void removerCliente(String cpf) throws ErroAoSalvarDadosException {
+        clientes.removeIf(cliente -> cliente.getCpf().equals(cpf));
+        salvarClientes();
     }
 
     public List<Cliente> listarClientes() {
