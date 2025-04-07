@@ -2,6 +2,9 @@ package dados.quartos;
 
 import excecoes.dados.*;
 import negocio.entidade.QuartoAbstrato;
+import negocio.entidade.Standard;
+import negocio.entidade.Suite;
+import negocio.entidade.enums.CapacidadeDoQuarto;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ public class RepositorioQuartos {
 
     public RepositorioQuartos() throws ErroAoCarregarDadosException {
         this.quartos = carregarQuartos();
+        inicializarQuartos();
     }
 
     private List<QuartoAbstrato> carregarQuartos() throws ErroAoCarregarDadosException {
@@ -26,6 +30,27 @@ public class RepositorioQuartos {
         }
     }
 
+    private void inicializarQuartos() {
+        if (quartos.isEmpty()) {
+            String numeroIdentificador = Integer.toString(quartos.size() + 101);
+            quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.SIMPLES));
+            quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.DUPLO));
+            quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.CASAL));
+            quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.SIMPLES));
+            quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.CASAL));
+            quartos.add(new Suite(numeroIdentificador, CapacidadeDoQuarto.SIMPLES));
+            quartos.add(new Suite(numeroIdentificador, CapacidadeDoQuarto.DUPLO));
+            quartos.add(new Suite(numeroIdentificador, CapacidadeDoQuarto.CASAL));
+            quartos.add(new Suite(numeroIdentificador, CapacidadeDoQuarto.SIMPLES));
+            quartos.add(new Suite(numeroIdentificador, CapacidadeDoQuarto.CASAL));
+            try {
+                salvarQuartos();
+            } catch (ErroAoSalvarDadosException excecao) {
+                excecao.printStackTrace();
+            }
+        }
+    }
+
     public void salvarQuartos() throws ErroAoSalvarDadosException {
         try (ObjectOutputStream arquivoEscrita = new ObjectOutputStream(new FileOutputStream(NOME_ARQUIVO))) {
             arquivoEscrita.writeObject(quartos);
@@ -34,40 +59,15 @@ public class RepositorioQuartos {
         }
     }
 
-    public void adicionarQuarto(QuartoAbstrato quarto) throws ErroAoSalvarDadosException {
-        quartos.add(quarto);
-        salvarQuartos();
-    }
-
-    public boolean existe(QuartoAbstrato novoQuarto) {
-        return quartos.stream().anyMatch(quarto -> quarto.getNumeroIdentificador().equals(quarto.getNumeroIdentificador()));
-    }
-
-    public QuartoAbstrato buscarQuartoPorNumero(String numero){
-        return quartos.stream()
-                .filter(quarto -> quarto.getNumeroIdentificador().equals(numero))
-                .findFirst()
-                .orElse(null);
-    }
-
     public List<QuartoAbstrato> listarQuartos() {
         return new ArrayList<>(quartos);
     }
 
-    public void removerQuarto(String numero) throws ErroAoSalvarDadosException {
-        quartos.removeIf(quarto -> quarto.getNumeroIdentificador().equals(numero));
-        salvarQuartos();
-    }
-
-    public void atualizarQuarto(QuartoAbstrato quartoAtualizado) throws ErroAoSalvarDadosException {
-        for (int indice = 0; indice < quartos.size(); indice++) {
-            QuartoAbstrato quarto = quartos.get(indice);
-            if (quarto.getNumeroIdentificador().equals(quartoAtualizado.getNumeroIdentificador())) {
-                quartos.set(indice, quartoAtualizado);
-                salvarQuartos();
-                break;
-            }
-        }
+    public QuartoAbstrato buscarQuartoPorNumero(String numero) {
+        return quartos.stream()
+                .filter(quarto -> quarto.getNumeroIdentificador().equals(numero))
+                .findFirst()
+                .orElse(null);
     }
 
 }
