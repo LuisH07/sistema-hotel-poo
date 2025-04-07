@@ -1,33 +1,37 @@
 package negocio.entidade;
 
 public abstract class QuartoAbstrato {
-    private String numeroIdentificador;
+    private final String numeroIdentificador;
     private String categoria;
     private int capacidade;
     private double precoDiaria;
-    private boolean disponibilidade;
+    private boolean disponivel;
 
     public QuartoAbstrato(String numeroIdentificador, int capacidade, double precoDiaria) {
+        if (numeroIdentificador == null || numeroIdentificador.trim().isEmpty()) {
+            throw new IllegalArgumentException("Número identificador não pode ser nulo ou vazio");
+        }
+        if (capacidade <= 0) {
+            throw new IllegalArgumentException("Capacidade deve ser maior que zero");
+        }
+        if (precoDiaria <= 0) {
+            throw new IllegalArgumentException("Preço diária deve ser maior que zero");
+        }
+
         this.numeroIdentificador = numeroIdentificador;
-        this.categoria = null;
         this.capacidade = capacidade;
         this.precoDiaria = precoDiaria;
-        this.disponibilidade = true;
+        this.disponivel = true;
     }
-
     public String getNumeroIdentificador() {
         return numeroIdentificador;
-    }
-
-    public void setNumeroIdentificador(String numero) {
-        this.numeroIdentificador = numero;
     }
 
     public String getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(String categoria) {
+    protected void setCategoria(String categoria) {
         this.categoria = categoria;
     }
 
@@ -36,6 +40,9 @@ public abstract class QuartoAbstrato {
     }
 
     public void setCapacidade(int capacidade) {
+        if (capacidade <= 0) {
+            throw new IllegalArgumentException("Capacidade deve ser maior que zero");
+        }
         this.capacidade = capacidade;
     }
 
@@ -44,32 +51,33 @@ public abstract class QuartoAbstrato {
     }
 
     public void setPrecoDiaria(double precoDiaria) {
+        if (precoDiaria <= 0) {
+            throw new IllegalArgumentException("Preço diária deve ser maior que zero");
+        }
         this.precoDiaria = precoDiaria;
     }
 
-    public boolean isDisponibilidade() {
-        return disponibilidade;
+    public boolean isDisponivel() {
+        return disponivel;
     }
 
-    public void setDisponibilidade(boolean disponibilidade) {
-        this.disponibilidade = disponibilidade;
+    public void setDisponivel(boolean disponivel) {
+        this.disponivel = disponivel;
     }
 
     @Override
     public String toString() {
-        return "Quarto{" +
-                "numero=" + numeroIdentificador +
-                ", categoria=" + categoria +
-                ", capacidade=" + capacidade +
-                ", precoDiaria=" + precoDiaria +
-                ", disponibilidade=" + disponibilidade +
-                '}';
+        return String.format("Quarto %s [%s] - Capacidade: %d - Preço: R$%.2f - %s",
+                numeroIdentificador,
+                categoria,
+                capacidade,
+                precoDiaria,
+                disponivel ? "Disponível" : "Ocupado");
     }
 
     public void alterarDisponibilidade() {
-        disponibilidade = !disponibilidade;
+        this.disponivel = !this.disponivel;
     }
 
     public abstract void calcularPrecoDiaria();
-
 }
