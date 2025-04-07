@@ -21,4 +21,10 @@ public class Suite extends QuartoAbstrato {
                 (VALOR_BASE + (VALOR_POR_PESSOA * getCapacidade().getQuantidadeDePessoas())) * TAXA;
         setPrecoDiaria(valorCalculado);
     }
+
+    @Override
+    public CategoriaDoQuarto getCategoria() {
+        return CATEGORIA;
+    }
+
 }

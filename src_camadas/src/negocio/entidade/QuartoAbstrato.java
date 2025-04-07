@@ -1,7 +1,5 @@
 package negocio.entidade;
 
-import dados.quartos.RepositorioQuartos;
-import excecoes.negocio.quarto.*;
 import negocio.entidade.enums.CapacidadeDoQuarto;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
@@ -36,12 +34,15 @@ public abstract class QuartoAbstrato {
 
     @Override
     public String toString() {
-        return String.format("Quarto %s [%s] - Capacidade: %d - Preço: R$%.2f - %s",
-                numeroIdentificador,
-                capacidade,
-                precoDiaria);
+        return "Quarto:" + "\n" +
+                "numero = " + numeroIdentificador + "\n" +
+                "capacidade = " + capacidade + "\n" +
+                "categoria = " + getCategoria() + "\n" +
+                "preco por noite = " + precoDiaria + "\n";
     }
 
     public abstract void calcularPrecoDiaria();
+
+    public abstract CategoriaDoQuarto getCategoria();
 
 }

@@ -20,4 +20,9 @@ public class Standard extends QuartoAbstrato {
         setPrecoDiaria(valorCalculado);
     }
 
+    @Override
+    public CategoriaDoQuarto getCategoria() {
+        return CATEGORIA;
+    }
+
 }
