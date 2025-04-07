@@ -2,6 +2,7 @@ package dados.quartos;
 
 import excecoes.dados.*;
 import negocio.entidade.QuartoAbstrato;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,16 +39,15 @@ public class RepositorioQuartos {
         salvarQuartos();
     }
 
-    public boolean existe(QuartoAbstrato quarto) {
-        return quartos.stream()
-                .anyMatch(q -> q.getNumeroIdentificador().equals(quarto.getNumeroIdentificador()));
+    public boolean existe(QuartoAbstrato novoQuarto) {
+        return quartos.stream().anyMatch(quarto -> quarto.getNumeroIdentificador().equals(quarto.getNumeroIdentificador()));
     }
 
     public QuartoAbstrato buscarQuartoPorNumero(String numero){
         return quartos.stream()
-                .filter(q -> q.getNumeroIdentificador().equals(numero))
+                .filter(quarto -> quarto.getNumeroIdentificador().equals(numero))
                 .findFirst()
-                .orElseThrow(null);
+                .orElse(null);
     }
 
     public List<QuartoAbstrato> listarQuartos() {
@@ -55,19 +55,19 @@ public class RepositorioQuartos {
     }
 
     public void removerQuarto(String numero) throws ErroAoSalvarDadosException {
-        QuartoAbstrato quarto = buscarQuartoPorNumero(numero);
-        quartos.remove(quarto);
+        quartos.removeIf(quarto -> quarto.getNumeroIdentificador().equals(numero));
         salvarQuartos();
     }
 
     public void atualizarQuarto(QuartoAbstrato quartoAtualizado) throws ErroAoSalvarDadosException {
-        QuartoAbstrato quartoExistente = buscarQuartoPorNumero(quartoAtualizado.getNumeroIdentificador());
-        int index = quartos.indexOf(quartoExistente);
-        quartos.set(index, quartoAtualizado);
-        salvarQuartos();
+        for (int indice = 0; indice < quartos.size(); indice++) {
+            QuartoAbstrato quarto = quartos.get(indice);
+            if (quarto.getNumeroIdentificador().equals(quartoAtualizado.getNumeroIdentificador())) {
+                quartos.set(indice, quartoAtualizado);
+                salvarQuartos();
+                break;
+            }
+        }
     }
 
-    public int getTamanho() {
-        return quartos.size();
-    }
 }
