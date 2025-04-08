@@ -4,15 +4,18 @@ import dados.cliente.RepositorioClientes;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
+import excecoes.negocio.reserva.ReservaJaCadastradaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import negocio.entidade.Cliente;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.StatusDaReserva;
 
 import java.util.List;
+import java.util.stream.Stream;
 
-public class NegocioCliente {
+public class NegocioCliente implements IFluxoReservas {
 
     private RepositorioClientes repositorioClientes;
     private RepositorioReservas repositorioReservas;
@@ -22,39 +25,46 @@ public class NegocioCliente {
         this.repositorioReservas = new RepositorioReservas();
     }
 
-    public void fazerReserva(Reserva reserva) throws ErroAoSalvarDadosException {
-        String cpf = reserva.getCliente().getCpf();
-        if (!repositorioClientes.existeCliente(cpf)) {
-            throw new IllegalArgumentException("Cliente com CPF " + cpf + " não está cadastrado.");
+    @Override
+    public void fazerReserva(Reserva novaReserva) throws ErroAoSalvarDadosException, ReservaInvalidaException, ReservaJaCadastradaException, ConflitoDeDatasException {
+        if (!novaReserva.isValida()) {
+            throw new ReservaInvalidaException("Informações de reserva inválidas!");
         }
-        if (repositorioReservas.existeReserva(reserva.getIdReserva())) {
-            throw new IllegalArgumentException("Já existe uma reserva com este ID.");
+        if (repositorioReservas.existeReserva(novaReserva.getIdReserva())) {
+            throw new ReservaJaCadastradaException("Reserva já existe!");
         }
-        repositorioReservas.adicionarReserva(reserva);
+
+        List<Reserva> reservasNoQuarto = Stream.concat(repositorioReservas.listarReservasPorStatus(StatusDaReserva.ATIVA).stream(), repositorioReservas.listarReservasPorStatus(StatusDaReserva.EM_USO).stream())
+                .filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(novaReserva.getQuarto().getNumeroIdentificador())).toList();
+        boolean quartoDisponivel = reservasNoQuarto.stream().noneMatch(reserva -> reserva.getDataInicio().isBefore(novaReserva.getDataFim()) && reserva.getDataFim().isAfter(novaReserva.getDataInicio()));
+
+        if (!quartoDisponivel) {
+            throw new ConflitoDeDatasException("Quarto " + novaReserva.getQuarto().getNumeroIdentificador() + " já reservado para o período selecionado.");
+        }
+
+        repositorioReservas.adicionarReserva(novaReserva);
     }
 
-    public void cancelarReserva(String idReserva) throws ReservaInvalidaException, ReservaNaoEncontradaException, ErroAoSalvarDadosException {
-        Reserva reservaCancelada = repositorioReservas.buscarReservaPorId(idReserva);
-        if (reservaCancelada == null) {
-            throw new ReservaNaoEncontradaException("Essa reserva não foi cadastrada!");
+    @Override
+    public void cancelarReserva(Reserva reserva) throws ReservaInvalidaException, ReservaNaoEncontradaException,
+            ErroAoSalvarDadosException {
+        if (!reserva.isValida()) {
+            throw new ReservaInvalidaException("Informações de reserva inválidas!");
         }
-        if (!reservaCancelada.isValida()) {
-            throw new ReservaInvalidaException("Informações de reserva inválidas");
+        if (!repositorioReservas.existeReserva(reserva.getIdReserva())) {
+            throw new ReservaNaoEncontradaException("Reserva não cadastrada!");
         }
-        if (reservaCancelada.getStatus() != StatusDaReserva.ATIVA) {
+        if (reserva.getStatus() != StatusDaReserva.ATIVA) {
             throw new ReservaInvalidaException("A reserva não está ativa e não pode ser cancelada!");
         }
 
-        reservaCancelada.setStatus(StatusDaReserva.CANCELADA);
-        repositorioReservas.atualizarReserva(reservaCancelada);
+        reserva.setStatus(StatusDaReserva.CANCELADA);
+        repositorioReservas.atualizarReserva(reserva);
     }
 
-    public List<Reserva> consultarHistorico(String cpfCliente) {
-        return repositorioReservas.listarReservasPorCliente(cpfCliente);
-    }
-
-    public Cliente buscarCliente(String cpf) {
-        return repositorioClientes.buscarClientePorCpf(cpf);
+    @Override
+    public List<Reserva> consultarHistorico(Cliente cliente) {
+        return repositorioReservas.listarReservasPorCliente(cliente.getCpf());
     }
 
 }

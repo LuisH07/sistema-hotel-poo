@@ -1,8 +1,6 @@
 package negocio;
 
 import excecoes.dados.ErroAoSalvarDadosException;
-import excecoes.negocio.cliente.ClienteInvalidoException;
-import excecoes.negocio.quarto.QuartoInvalidoException;
 import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaJaCadastradaException;
@@ -19,6 +17,11 @@ public interface IFluxoReservas {
 
     void cancelarReserva(Reserva reserva) throws ReservaNaoEncontradaException, ReservaInvalidaException, ErroAoSalvarDadosException;
 
-    List<Reserva> consultarHistorico();
+    default List<Reserva> consultarHistorico() {
+        return null;
+    }
+    default List<Reserva> consultarHistorico(Cliente cliente) {
+        return null;
+    }
 
 }
