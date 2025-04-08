@@ -28,6 +28,12 @@ public class Reserva {
         this.status = StatusDaReserva.ATIVA;
     }
 
+    public Reserva(LocalDate dataInicio, LocalDate dataFim, String detalhes) {
+        this.dataInicio = dataInicio;
+        this.dataFim = dataFim;
+        this.detalhes = detalhes;
+    }
+
     private String gerarIdReserva() {
         LocalDateTime horario = LocalDateTime.now();
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
