@@ -2,6 +2,7 @@ package fachada;
 
 import negocio.NegocioAtendente;
 import negocio.entidade.Reserva;
+
 import java.util.List;
 
 public class FachadaAtendente {
@@ -12,6 +13,6 @@ public class FachadaAtendente {
     }
 
     public List<Reserva> listarReservasAtivas() {
-        return negocioAtendente.listarReservasAtivas();
+        return negocioAtendente.consultarHistorico();
     }
 }
