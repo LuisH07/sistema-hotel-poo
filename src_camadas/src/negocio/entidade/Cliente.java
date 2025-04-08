@@ -23,7 +23,7 @@ public class Cliente {
     public String getEmail() {return email;}
 
     public boolean isValido() {
-        if (cpf == null || nome == null || email == null || cpf.isBlank() || nome.isBlank() || email.isBlank() || !email.contains("@")) {
+        if (cpf == null || nome == null || email == null || !email.contains("@")) {
             return false;
         }
         return true;
@@ -31,10 +31,9 @@ public class Cliente {
 
     @Override
     public String toString() {
-        return "Cliente{" +
-                "cpf='" + cpf + '\'' +
-                ", nome='" + nome + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+        return "Cliente:" + "\n" +
+                "cpf = " + cpf + "\n" +
+                "nome = " + nome + "\n" +
+                "email = " + email + "\n";
     }
 }

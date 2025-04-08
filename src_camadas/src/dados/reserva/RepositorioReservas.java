@@ -3,6 +3,7 @@ package dados.reserva;
 import excecoes.dados.*;
 import negocio.entidade.QuartoAbstrato;
 import negocio.entidade.Reserva;
+import negocio.entidade.enums.StatusDaReserva;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,8 @@ public class RepositorioReservas {
             salvarReservas();
     }
 
-    public boolean existeReserva(Reserva novaReserva) {
-        return reservas.stream().anyMatch(reserva -> reserva.getIdReserva().equals(novaReserva.getIdReserva()));
+    public boolean existeReserva(String idReserva) {
+        return reservas.stream().anyMatch(reserva -> reserva.getIdReserva().equals(idReserva));
     }
 
     public Reserva buscarReservaPorId(String idReserva) {
@@ -76,7 +77,7 @@ public class RepositorioReservas {
         return reservas.stream().filter(reserva -> reserva.getCliente().getCpf().equals(cpf)).toList();
     }
 
-    public List<Reserva> listarReservasPorStatus(String status) {
+    public List<Reserva> listarReservasPorStatus(StatusDaReserva status) {
         return reservas.stream().filter(reserva -> reserva.getStatus().equals(status)).toList();
     }
 

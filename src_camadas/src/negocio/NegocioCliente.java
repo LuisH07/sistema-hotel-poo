@@ -27,7 +27,7 @@ public class NegocioCliente {
         if (!repositorioClientes.existeCliente(cpf)) {
             throw new IllegalArgumentException("Cliente com CPF " + cpf + " não está cadastrado.");
         }
-        if (repositorioReservas.existeReserva(reserva)) {
+        if (repositorioReservas.existeReserva(reserva.getIdReserva())) {
             throw new IllegalArgumentException("Já existe uma reserva com este ID.");
         }
         repositorioReservas.adicionarReserva(reserva);

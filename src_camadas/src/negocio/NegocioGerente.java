@@ -16,7 +16,8 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio {
     }
 
     @Override
-    public void cancelarReserva(String idReserva) throws ReservaInvalidaException, ReservaNaoEncontradaException, ErroAoSalvarDadosException {
+    public void cancelarReserva(Reserva reserva) throws ReservaInvalidaException, ReservaNaoEncontradaException,
+            ErroAoSalvarDadosException {
         Reserva reservaCancelada = repositorioReservas.buscarReservaPorId(idReserva);
         if (reservaCancelada == null) {
             throw new ReservaNaoEncontradaException("Essa reserva não foi cadastrada!");

@@ -32,7 +32,7 @@ public class RepositorioQuartos {
 
     private void inicializarQuartos() {
         if (quartos.isEmpty()) {
-            String numeroIdentificador = Integer.toString(quartos.size() + 101);
+            String numeroIdentificador = "Q" + quartos.size() + 101;
             quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.SIMPLES));
             quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.DUPLO));
             quartos.add(new Standard(numeroIdentificador, CapacidadeDoQuarto.CASAL));
