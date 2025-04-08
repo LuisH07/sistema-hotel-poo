@@ -1,16 +1,46 @@
 package negocio;
 
+import dados.reserva.RepositorioReservas;
+import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.reserva.ReservaInvalidaException;
+import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import negocio.entidade.Reserva;
-import java.time.LocalDate;
-import java.util.List;
+import negocio.entidade.enums.StatusDaReserva;
 
-public class NegocioGerente {
+public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio {
 
-    public List<Reserva> listarReservas() {
-        // Implementar metodo de listar todas as reservas
+    private RepositorioReservas repositorioReservas;
+
+    public NegocioGerente(RepositorioReservas repositorioReservas) {
+        this.repositorioReservas = repositorioReservas;
     }
 
-    public String gerarRelatorio(LocalDate inicio, LocalDate fim) {
-        // Implementar metodo de gerar relatorio do Gerente
+    @Override
+    public void cancelarReserva(String idReserva) throws ReservaInvalidaException, ReservaNaoEncontradaException, ErroAoSalvarDadosException {
+        Reserva reservaCancelada = repositorioReservas.buscarReservaPorId(idReserva);
+        if (reservaCancelada == null) {
+            throw new ReservaNaoEncontradaException("Essa reserva não foi cadastrada!");
+        }
+        if (!reservaCancelada.isValida()) {
+            throw new ReservaInvalidaException("Informações de reserva inválidas");
+        }
+        if (reservaCancelada.getStatus() != StatusDaReserva.ATIVA) {
+            throw new ReservaInvalidaException("A reserva não está ativa e não pode ser cancelada!");
+        }
+
+        reservaCancelada.setStatus(StatusDaReserva.CANCELADA);
+        repositorioReservas.atualizarReserva(reservaCancelada);
     }
+
+    @Override
+    public void consultarHistorico() {
+
+    }
+
+    @Override
+    public void gerarRelatorio() {
+
+    }
+
+
 }
