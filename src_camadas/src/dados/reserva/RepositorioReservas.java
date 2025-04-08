@@ -1,7 +1,6 @@
 package dados.reserva;
 
 import excecoes.dados.*;
-import negocio.entidade.QuartoAbstrato;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.StatusDaReserva;
 
@@ -86,8 +85,4 @@ public class RepositorioReservas {
         return reservas.stream().filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(numeroIdentificador)).toList();
     }
 
-    public List<Reserva> listarReservasPorPeriodo(LocalDate dataInicio, LocalDate dataFim) {
-        return reservas.stream().filter(reserva -> !reserva.getDataInicio().isAfter(dataFim) && !reserva.getDataFim().isBefore(dataInicio))
-                .toList();
-    }
 }

@@ -1,10 +1,13 @@
 package negocio;
 
+import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
+import negocio.entidade.QuartoAbstrato;
 import negocio.entidade.Reserva;
+import negocio.entidade.enums.CategoriaDoQuarto;
 import negocio.entidade.enums.StatusDaReserva;
 
 import java.io.FileWriter;
@@ -16,9 +19,11 @@ import java.util.List;
 public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio {
 
     private RepositorioReservas repositorioReservas;
+    private RepositorioQuartos repositorioQuartos;
 
-    public NegocioGerente(RepositorioReservas repositorioReservas) {
+    public NegocioGerente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos) {
         this.repositorioReservas = repositorioReservas;
+        this.repositorioQuartos = repositorioQuartos;
     }
 
     @Override
@@ -70,24 +75,61 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio {
         }
     }
 
-    private long contarReservasPorStatus(List<Reserva> reservas, StatusDaReserva status) {
-        return reservas.stream().filter(reserva -> reserva.getStatus() == status).count();
+    private List<Reserva> listarReservasPorCategoriaDoQuarto(CategoriaDoQuarto categoria) {
+        List<Reserva> reservasPorCategoria;
+        return reservasPorCategoria = repositorioReservas.listarReservas().stream().filter(reserva -> reserva.getQuarto().getCategoria().equals(categoria)).toList();
     }
 
-    private double calcularTaxaCancelamento(List<Reserva> reservas) {
-        if (reservas.isEmpty()) return 0;
-        long canceladas = contarReservasPorStatus(reservas, StatusDaReserva.CANCELADA);
-        return (double) canceladas / reservas.size();
+    private long calcularQuantidadeDeReservasPorCateogiraDeQuarto(CategoriaDoQuarto categoria) {
+        List<Reserva> reservasPorCategoria = listarReservasPorCategoriaDoQuarto(categoria);
+        return reservasPorCategoria.size();
     }
 
-    private double calcularTaxaOcupacao(List<Reserva> reservas) {
-        if (reservas.isEmpty()) return 0;
-        long finalizadas = contarReservasPorStatus(reservas, StatusDaReserva.FINALIZADA);
-        return (double) finalizadas / reservas.size();
+    private long calcularQuantidadeTotalDeReservas() {
+        List<Reserva> reservas = repositorioReservas.listarReservas();
+        return reservas.size();
     }
 
-    private double calcularReceitaTotal(List<Reserva> reservas) {
-        return 0.0;
-        //Metodo ainda não implementado
+    private double calcularTaxaDeCancelamento() {
+        double canceladas = (double) calcularQuantidadeDeReservasPorStatus(StatusDaReserva.CANCELADA);
+        double total = (double) calcularQuantidadeTotalDeReservas();
+
+        if (total == 0) {
+            return 0.0;
+        }
+        return (canceladas / total) * 100;
     }
+
+    private long calcularQuantidadeDeReservasPorStatus(StatusDaReserva status) {
+        List<Reserva> reservasPorStatus = repositorioReservas.listarReservasPorStatus(status);
+        return reservasPorStatus.size();
+    }
+
+    private long calcularQuantidadeDeQuartos() {
+        List<QuartoAbstrato> quartos = repositorioQuartos.listarQuartos();
+        return quartos.size();
+    }
+
+    private double calcularTaxaDeOcupacao() {
+        long quantidadeDeReservasOcupadas =
+                calcularQuantidadeDeReservasPorStatus(StatusDaReserva.ATIVA) + calcularQuantidadeDeReservasPorStatus(StatusDaReserva.EM_USO);
+
+
+    }
+
+    private double calcularTaxaDeOcupacao(LocalDate data) {
+        long quantidadeDeReservasOcupadas =
+                calcularQuantidadeDeReservasPorStatus(StatusDaReserva.ATIVA) + calcularQuantidadeDeReservasPorStatus(StatusDaReserva.EM_USO);
+
+
+
+        return taxa;
+    }
+
+    private int calcularDiasDoMes(int mes, int ano) {
+        YearMonth anoMes = YearMonth.of(ano, mes);
+        return anoMes.lengthOfMonth();
+    }
+
+
 }

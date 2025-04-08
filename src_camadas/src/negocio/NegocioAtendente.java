@@ -1,9 +1,7 @@
 package negocio;
 
-import dados.cliente.RepositorioClientes;
 import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
-import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.*;
 import excecoes.negocio.reserva.*;
@@ -17,8 +15,7 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
     RepositorioReservas repositorioReservas;
     RepositorioQuartos repositorioQuartos;
 
-    public NegocioAtendente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos,
-                            RepositorioClientes repositorioClientes){
+    public NegocioAtendente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos){
         this.repositorioReservas = repositorioReservas;
         this.repositorioQuartos = repositorioQuartos;
     }
