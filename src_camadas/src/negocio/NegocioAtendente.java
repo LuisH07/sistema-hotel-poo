@@ -3,6 +3,7 @@ package negocio;
 import dados.cliente.RepositorioClientes;
 import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
+import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.*;
 import excecoes.negocio.reserva.*;
@@ -11,7 +12,7 @@ import excecoes.dados.*;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class NegocioAtendente implements IFluxoReservas {
+public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
 
     RepositorioReservas repositorioReservas;
     RepositorioQuartos repositorioQuartos;
@@ -97,6 +98,11 @@ public class NegocioAtendente implements IFluxoReservas {
 
         reserva.setStatus(StatusDaReserva.FINALIZADA);
         repositorioReservas.atualizarReserva(reserva);
+    }
+
+    @Override
+    public boolean autenticar(String email, String senha) {
+        return email.equals(Cargo.ATENDENTE.getEmail()) && senha.equals(Cargo.ATENDENTE.getSenha());
     }
 
 }
