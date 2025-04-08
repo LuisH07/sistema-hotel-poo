@@ -4,6 +4,8 @@ import dados.cliente.RepositorioClientes;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.cliente.ClienteInvalidoException;
+import excecoes.negocio.cliente.ClienteJaExisteException;
 import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaJaCadastradaException;
@@ -62,9 +64,26 @@ public class NegocioCliente implements IFluxoReservas {
         repositorioReservas.atualizarReserva(reserva);
     }
 
+    public void cadastrarCliente(Cliente novoCliente) throws ClienteInvalidoException, ClienteJaExisteException, ErroAoSalvarDadosException {
+        if (!novoCliente.isValido()){
+            throw new ClienteInvalidoException("Informações do cliente inválidas!");
+        }
+        if (repositorioClientes.existeCliente(novoCliente.getCpf())){
+            throw new ClienteJaExisteException("Cliente já cadastrado!");
+        }
+        repositorioClientes.adicionarCliente(novoCliente);
+    }
+
     @Override
     public List<Reserva> consultarHistorico(Cliente cliente) {
         return repositorioReservas.listarReservasPorCliente(cliente.getCpf());
     }
 
+    public boolean autenticar(String email, String cpf) {
+        Cliente cliente = repositorioClientes.buscarClientePorCpf(cpf);
+        if (cliente == null){
+            return false;
+        }
+        return email.equals(cliente.getEmail());
+    }
 }
