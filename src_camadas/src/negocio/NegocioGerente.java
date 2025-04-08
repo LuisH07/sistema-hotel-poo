@@ -53,20 +53,41 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio {
 
             writer.write("=== ESTATÍSTICAS GERAIS ===\n");
             writer.write("Total de reservas: " + reservasNoPeriodo.size() + "\n");
-            writer.write("Reservas ativas: " + repositorioReservas.contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.ATIVA) + "\n");
-            writer.write("Reservas em uso: " + repositorioReservas.contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.EM_USO) + "\n");
-            writer.write("Reservas finalizadas: " + repositorioReservas.contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.FINALIZADA) + "\n");
-            writer.write("Reservas canceladas: " + repositorioReservas.contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.CANCELADA) + "\n");
+            writer.write("Reservas ativas: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.ATIVA) + "\n");
+            writer.write("Reservas em uso: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.EM_USO) + "\n");
+            writer.write("Reservas finalizadas: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.FINALIZADA) + "\n");
+            writer.write("Reservas canceladas: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.CANCELADA) + "\n");
 
-            double taxaCancelamento = repositorioReservas.calcularTaxaCancelamento(reservasNoPeriodo);
-            double taxaOcupacao = repositorioReservas.calcularTaxaOcupacao(reservasNoPeriodo);
+            double taxaCancelamento = calcularTaxaCancelamento(reservasNoPeriodo);
+            double taxaOcupacao = calcularTaxaOcupacao(reservasNoPeriodo);
             writer.write("\n=== TAXAS ===\n");
             writer.write(String.format("Taxa de cancelamento: %.2f%%\n", taxaCancelamento * 100));
             writer.write(String.format("Taxa de ocupação: %.2f%%\n", taxaOcupacao * 100));
 
-            double receitaTotal = repositorioReservas.calcularReceitaTotal(reservasNoPeriodo);
+            double receitaTotal = calcularReceitaTotal(reservasNoPeriodo);
             writer.write("\n=== RECEITA ===\n");
             writer.write(String.format("Receita total: R$ %.2f\n", receitaTotal));
         }
+    }
+
+    private long contarReservasPorStatus(List<Reserva> reservas, StatusDaReserva status) {
+        return reservas.stream().filter(reserva -> reserva.getStatus() == status).count();
+    }
+
+    private double calcularTaxaCancelamento(List<Reserva> reservas) {
+        if (reservas.isEmpty()) return 0;
+        long canceladas = contarReservasPorStatus(reservas, StatusDaReserva.CANCELADA);
+        return (double) canceladas / reservas.size();
+    }
+
+    private double calcularTaxaOcupacao(List<Reserva> reservas) {
+        if (reservas.isEmpty()) return 0;
+        long finalizadas = contarReservasPorStatus(reservas, StatusDaReserva.FINALIZADA);
+        return (double) finalizadas / reservas.size();
+    }
+
+    private double calcularReceitaTotal(List<Reserva> reservas) {
+        return 0.0;
+        //Metodo ainda não implementado
     }
 }
