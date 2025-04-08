@@ -16,11 +16,17 @@ public class Cliente {
         this.email = email;
     }
 
-    public String getCpf() {return cpf;}
+    public String getCpf() {
+        return cpf;
+    }
 
-    public String getNome() {return nome;}
+    public String getNome() {
+        return nome;
+    }
 
-    public String getEmail() {return email;}
+    public String getEmail() {
+        return email;
+    }
 
     public boolean isValido() {
         if (cpf == null || nome == null || email == null || !email.contains("@")) {
@@ -29,11 +35,10 @@ public class Cliente {
         return true;
     }
 
-    @Override
     public String toString() {
         return "Cliente:" + "\n" +
                 "cpf = " + cpf + "\n" +
                 "nome = " + nome + "\n" +
-                "email = " + email + "\n";
+                "email = " + email + "\n ";
     }
 }
