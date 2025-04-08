@@ -5,6 +5,7 @@ import negocio.entidade.QuartoAbstrato;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.StatusDaReserva;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
@@ -85,5 +86,30 @@ public class RepositorioReservas {
         return reservas.stream().filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(numeroIdentificador)).toList();
     }
 
+    public List<Reserva> listarReservasPorPeriodo(LocalDate dataInicio, LocalDate dataFim) {
+        return reservas.stream().filter(reserva -> !reserva.getDataInicio().isAfter(dataFim) && !reserva.getDataFim().isBefore(dataInicio))
+                .toList();
+    }
+
+    public long contarReservasPorStatus(List<Reserva> reservas, StatusDaReserva status) {
+        return reservas.stream().filter(reserva -> reserva.getStatus() == status).count();
+    }
+
+    public double calcularTaxaCancelamento(List<Reserva> reservas) {
+        if (reservas.isEmpty()) return 0;
+        long canceladas = contarReservasPorStatus(reservas, StatusDaReserva.CANCELADA);
+        return (double) canceladas / reservas.size();
+    }
+
+    public double calcularTaxaOcupacao(List<Reserva> reservas) {
+        if (reservas.isEmpty()) return 0;
+        long finalizadas = contarReservasPorStatus(reservas, StatusDaReserva.FINALIZADA);
+        return (double) finalizadas / reservas.size();
+    }
+
+    public double calcularReceitaTotal(List<Reserva> reservas) {
+        return 0.0;
+        //Metodo ainda não implementado
+    }
 }
 
