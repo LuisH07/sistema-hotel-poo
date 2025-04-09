@@ -2,6 +2,7 @@ package negocio;
 
 import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
+import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.*;
 import excecoes.negocio.reserva.*;
@@ -76,8 +77,15 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
     }
 
     @Override
-    public boolean autenticar(String email, String senha) {
-        return email.equals(Cargo.ATENDENTE.getEmail()) && senha.equals(Cargo.ATENDENTE.getSenha());
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+        if (!email.equals(Cargo.ATENDENTE.getEmail()) || !senha.equals(Cargo.ATENDENTE.getSenha())) {
+            throw new AutenticacaoFalhouException("Credenciais inválidas.");
+        }
+        return true;
+    }
+
+    public Reserva buscarReservaPorId(String idReserva) {
+        return repositorioReservas.buscarReservaPorId(idReserva);
     }
 
 }
