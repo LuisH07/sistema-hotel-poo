@@ -13,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class GeradorRelatorioMensal {
     private YearMonth mesAno;
@@ -152,6 +153,100 @@ public class GeradorRelatorioMensal {
                 .sorted((entrada1, entrada2) -> Long.compare(entrada2.getValue(), entrada1.getValue()))
                 .map(Map.Entry::getKey)
                 .toList();
+    }
+
+    public double calcularReceitaTotalNoMes() {
+        List<Reserva> reservasParaReceita = reservasDoMes.stream().filter(reserva -> reserva.getStatus().equals(StatusDaReserva.EM_USO) || reserva.getStatus().equals(StatusDaReserva.FINALIZADA)).toList();
+
+        double receitaTotalNoMes = 0.0;
+        for (Reserva reserva: reservasParaReceita) {
+            receitaTotalNoMes += reserva.getValorTotal();
+        }
+
+        return receitaTotalNoMes;
+    }
+
+    public double calcularValorPerdidoPorCancelamentos() {
+        List<Reserva> reservasCanceladas =
+                reservasDoMes.stream().filter(reserva -> reserva.getStatus().equals(StatusDaReserva.CANCELADA)).toList();
+        double valorPerdido = 0.0;
+        for (Reserva reserva: reservasCanceladas) {
+            valorPerdido += reserva.getValorTotal();
+        }
+
+        return valorPerdido;
+    }
+
+    public double calcularValorMedioPorDiaria() {
+        List<Reserva> reservasValidas =
+                reservasDoMes.stream().filter(reserva -> reserva.getStatus().equals(StatusDaReserva.EM_USO) || reserva.getStatus().equals(StatusDaReserva.FINALIZADA)).toList();
+
+        double receitaTotalNoMes = calcularReceitaTotalNoMes();
+
+        long totalDeDiariasVendidas = 0;
+        for (Reserva reserva: reservasValidas) {
+            totalDeDiariasVendidas += ChronoUnit.DAYS.between(reserva.getDataInicio(), reserva.getDataFim());
+        }
+
+        if (totalDeDiariasVendidas == 0) {
+            return 0.0;
+        }
+
+        return receitaTotalNoMes / totalDeDiariasVendidas;
+    }
+
+    public double calcularValorMedioPorReserva() {
+        if (reservasDoMes.size() == 0) {
+            return 0.0;
+        }
+        return calcularReceitaTotalNoMes() / reservasDoMes.size();
+    }
+
+    public double calcularReceitaPorCategoriaDeQuarto(CategoriaDoQuarto categoria) {
+        List<Reserva> reservasValidasPorCategoria = reservasDoMes.stream()
+                .filter(reserva -> reserva.getQuarto().getCategoria().equals(categoria))
+                .filter(reserva -> reserva.getStatus().equals(StatusDaReserva.EM_USO) || reserva.getStatus().equals(StatusDaReserva.FINALIZADA))
+                .toList();
+
+        double receitaPorCategoriaDeQuarto = 0.0;
+        for (Reserva reserva: reservasValidasPorCategoria) {
+            receitaPorCategoriaDeQuarto += reserva.getValorTotal();
+        }
+
+        return receitaPorCategoriaDeQuarto;
+    }
+
+    public double calcularValorMedioPorCategoriaDeQuarto(CategoriaDoQuarto categoria) {
+        List<Reserva> reservasValidas = reservasDoMes.stream()
+                .filter(reserva -> reserva.getQuarto().getCategoria() == categoria)
+                .filter(reserva -> reserva.getStatus() == StatusDaReserva.EM_USO ||
+                        reserva.getStatus() == StatusDaReserva.FINALIZADA)
+                .toList();
+
+        if (reservasValidas.isEmpty()) {
+            return 0.0;
+        }
+
+        return calcularReceitaPorCategoriaDeQuarto(categoria) / reservasValidas.size();
+    }
+
+    public long calcularClientesDistintosNoMes() {
+        return reservasDoMes.stream()
+                .filter(reserva -> reserva.getStatus().equals(StatusDaReserva.ATIVA) || reserva.getStatus().equals(StatusDaReserva.FINALIZADA) || reserva.getStatus().equals(StatusDaReserva.EM_USO))  // Filtra as reservas válidas
+                .map(reserva -> reserva.getCliente().getCpf())
+                .distinct()
+                .count();
+    }
+
+    public double calcularTicketMedioPorCliente() {
+        double receitaTotalNoMes = calcularReceitaTotalNoMes();
+        long quantidadeDeClientesDistintos = calcularClientesDistintosNoMes();
+
+        if (quantidadeDeClientesDistintos == 0) {
+            return 0.0;
+        }
+
+        return receitaTotalNoMes/quantidadeDeClientesDistintos;
     }
 
 }

@@ -91,6 +91,10 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio, IAutenti
         relatorio.append("Média de permanência dos hóspedes\n");
         relatorio.append("Média de Permanência: ").append(String.format("%.2f", mediaPermanencia)).append(" dias\n\n");
 
+        long quantidadeDeClientesDistintosNoMes = geradorRelatorioMensal.calcularClientesDistintosNoMes();
+        relatorio.append("Clientes distintos no mês\n");
+        relatorio.append("Clientes distintos: ").append(quantidadeDeClientesDistintosNoMes).append(" clientes\n\n");
+
         relatorio.append("Lista dos quartos mais utilizados: \n");
         List<QuartoAbstrato> quartosMaisReservados = geradorRelatorioMensal.listarQuartosMaisReservadosNoMes();
         for (int indice = 0; indice < quartosMaisReservados.size(); indice++) {
