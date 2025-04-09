@@ -1,26 +1,29 @@
 package fachada;
 
 import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.cliente.ClienteInvalidoException;
 import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaJaCadastradaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
-import negocio.IFluxoReservas;
+import negocio.NegocioCliente;
 import negocio.entidade.Cliente;
 import negocio.entidade.Reserva;
 import negocio.entidade.QuartoAbstrato;
 import java.time.LocalDate;
 import dados.cliente.RepositorioClientes;
+import negocio.entidade.enums.StatusDaReserva;
+
 import java.util.List;
 
 public class FachadaCliente {
 
     private RepositorioClientes repositorioClientes;
-    private IFluxoReservas fluxoReservas;
+    private NegocioCliente negocioCliente;
 
-    public FachadaCliente(RepositorioClientes repositorioClientes, IFluxoReservas fluxoReservas) {
+    public FachadaCliente(RepositorioClientes repositorioClientes, NegocioCliente negocioCliente) {
         this.repositorioClientes = repositorioClientes;
-        this.fluxoReservas = fluxoReservas;
+        this.negocioCliente = negocioCliente;
     }
 
     public void fazerReserva(String cpf, QuartoAbstrato quarto, LocalDate inicio, LocalDate fim) {
@@ -40,15 +43,10 @@ public class FachadaCliente {
 
         Reserva reserva = new Reserva(cliente, quarto, inicio, fim);
         try {
-            fluxoReservas.fazerReserva(reserva);
-        } catch (ReservaInvalidaException e) {
-            throw new RuntimeException(e);
-        } catch (ConflitoDeDatasException e) {
-            throw new RuntimeException(e);
-        } catch (ErroAoSalvarDadosException e) {
-            throw new RuntimeException(e);
-        } catch (ReservaJaCadastradaException e) {
-            throw new RuntimeException(e);
+            negocioCliente.fazerReserva(reserva);
+        } catch (ReservaInvalidaException | ReservaJaCadastradaException | ErroAoSalvarDadosException |
+                 ConflitoDeDatasException excecao) {
+            throw new RuntimeException(excecao);
         }
     }
 
@@ -56,15 +54,30 @@ public class FachadaCliente {
         return repositorioClientes.buscarClientePorCpf(cpf);
     }
 
-    public List<Reserva> consultarHistorico(String cpfCliente) {
-        Cliente cliente = buscarClientePorCpf(cpfCliente);
+    public List<Reserva> consultarHistorico(String cpf) {
+        Cliente cliente = buscarClientePorCpf(cpf);
         if (cliente == null) {
-            throw new IllegalArgumentException("Cliente com CPF " + cpfCliente + " não encontrado.");
+            throw new IllegalArgumentException("Cliente com CPF " + cpf + " não encontrado.");
         }
-        return fluxoReservas.consultarHistorico(cliente);
+        return negocioCliente.consultarHistorico(cliente);
     }
 
-    public void cancelarReserva(Reserva reserva) throws ReservaNaoEncontradaException, ReservaInvalidaException, ErroAoSalvarDadosException {
-        fluxoReservas.cancelarReserva(reserva);
+    public void cancelarReserva(String cpf, String idReserva) throws ReservaInvalidaException,
+            ReservaNaoEncontradaException,
+            ErroAoSalvarDadosException,
+            IllegalArgumentException, ClienteInvalidoException {
+
+        Cliente cliente = buscarClientePorCpf(cpf);
+        if (cliente == null) {
+            throw new ClienteInvalidoException("Cliente com CPF " + cpf + " não encontrado.");
+        }
+
+        Reserva reserva = negocioCliente.buscarReservaPorId(idReserva);
+
+        if (!reserva.getCliente().getCpf().equals(cpf)) {
+            throw new ReservaInvalidaException("Esta reserva não pertence ao cliente informado.");
+        }
+
+        negocioCliente.cancelarReserva(reserva);
     }
 }

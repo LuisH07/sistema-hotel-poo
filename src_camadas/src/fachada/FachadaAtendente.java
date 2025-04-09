@@ -13,8 +13,8 @@ import java.util.List;
 public class FachadaAtendente {
     private NegocioAtendente negocioAtendente;
 
-    public FachadaAtendente() throws ErroAoCarregarDadosException {
-        this.negocioAtendente = new NegocioAtendente(new RepositorioReservas(), new RepositorioQuartos());
+    public FachadaAtendente(NegocioAtendente negocioAtendente) {
+        this.negocioAtendente = negocioAtendente;
     }
 
     public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {

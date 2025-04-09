@@ -4,6 +4,7 @@ import dados.quartos.RepositorioQuartos;
 import dados.relatorios.RepositorioRelatorios;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import negocio.entidade.enums.Cargo;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
@@ -24,8 +25,11 @@ public class NegocioAssistenteFinanceiro implements IAutenticacao, IFluxoRelator
     }
 
     @Override
-    public boolean autenticar(String email, String senha) {
-        return email.equals(Cargo.GERENTE.getEmail()) && senha.equals(Cargo.GERENTE.getSenha());
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+        if (!email.equals(Cargo.ASSISTENTE_FINANCEIRO.getEmail()) || !senha.equals(Cargo.ASSISTENTE_FINANCEIRO.getSenha())) {
+            throw new AutenticacaoFalhouException("Credenciais inválidas.");
+        }
+        return true;
     }
 
     @Override
