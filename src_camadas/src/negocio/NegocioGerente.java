@@ -1,29 +1,41 @@
 package negocio;
 
 import dados.quartos.RepositorioQuartos;
+import dados.relatorios.RepositorioRelatorios;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import negocio.entidade.QuartoAbstrato;
 import negocio.entidade.Reserva;
+import negocio.entidade.enums.Cargo;
 import negocio.entidade.enums.CategoriaDoQuarto;
 import negocio.entidade.enums.StatusDaReserva;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio {
+public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio, IAutenticacao {
 
     private RepositorioReservas repositorioReservas;
     private RepositorioQuartos repositorioQuartos;
+    private RepositorioRelatorios repositorioRelatorios;
 
-    public NegocioGerente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos) {
+    public NegocioGerente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos,
+                          RepositorioRelatorios repositorioRelatorios) {
         this.repositorioReservas = repositorioReservas;
         this.repositorioQuartos = repositorioQuartos;
+        this.repositorioRelatorios = repositorioRelatorios;
+    }
+
+    @Override
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+        if (!email.equals(Cargo.GERENTE.getEmail()) || !senha.equals(Cargo.GERENTE.getSenha())) {
+            throw new AutenticacaoFalhouException("Credenciais inválidas.");
+        }
+        return true;
     }
 
     @Override
@@ -49,87 +61,54 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio {
     }
 
     @Override
-    public void gerarRelatorio(LocalDate dataInicio, LocalDate dataFim, String caminhoArquivo) throws IOException {
-        List<Reserva> reservasNoPeriodo = repositorioReservas.listarReservasPorPeriodo(dataInicio, dataFim);
+    public void gerarRelatorio(YearMonth mesAno) throws ErroAoSalvarDadosException {
+        GeradorRelatorioMensal geradorRelatorioMensal = new GeradorRelatorioMensal(mesAno, repositorioReservas, repositorioQuartos);
 
-        try (FileWriter writer = new FileWriter(caminhoArquivo)) {
-            writer.write("===== RELATÓRIO DE RESERVAS =====\n");
-            writer.write("Período: " + dataInicio.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " a " + dataFim.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n\n");
+        StringBuilder relatorio = new StringBuilder();
 
-            writer.write("=== ESTATÍSTICAS GERAIS ===\n");
-            writer.write("Total de reservas: " + reservasNoPeriodo.size() + "\n");
-            writer.write("Reservas ativas: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.ATIVA) + "\n");
-            writer.write("Reservas em uso: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.EM_USO) + "\n");
-            writer.write("Reservas finalizadas: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.FINALIZADA) + "\n");
-            writer.write("Reservas canceladas: " + contarReservasPorStatus(reservasNoPeriodo, StatusDaReserva.CANCELADA) + "\n");
+        relatorio.append("Relatório Mensal De Gerente\n");
+        relatorio.append("Data do relatório: ").append(mesAno.format(DateTimeFormatter.ofPattern("MM/yyyy"))).append("\n\n");
 
-            double taxaCancelamento = calcularTaxaCancelamento(reservasNoPeriodo);
-            double taxaOcupacao = calcularTaxaOcupacao(reservasNoPeriodo);
-            writer.write("\n=== TAXAS ===\n");
-            writer.write(String.format("Taxa de cancelamento: %.2f%%\n", taxaCancelamento * 100));
-            writer.write(String.format("Taxa de ocupação: %.2f%%\n", taxaOcupacao * 100));
+        relatorio.append("Visão Geral das Reservas\n");
+        relatorio.append("Quantidade total de reservas realizadas no mês\n");
+        relatorio.append("Total: ").append(geradorRelatorioMensal.calcularQuantidadeDeReservasNoMes()).append("\n\n");
 
-            double receitaTotal = calcularReceitaTotal(reservasNoPeriodo);
-            writer.write("\n=== RECEITA ===\n");
-            writer.write(String.format("Receita total: R$ %.2f\n", receitaTotal));
+        relatorio.append("Detalhes por categoria de quarto\n");
+        relatorio.append("Standard: ").append(geradorRelatorioMensal.calcularQuantidadeDeReservasPorCategoriaDeQuartoNoMes(CategoriaDoQuarto.STANDARD)).append("\n");
+        relatorio.append("Suíte: ").append(geradorRelatorioMensal.calcularQuantidadeDeReservasPorCategoriaDeQuartoNoMes(CategoriaDoQuarto.SUITE)).append("\n");
+
+        relatorio.append("Quantidade de reservas canceladas\n");
+        relatorio.append("Total: ").append(geradorRelatorioMensal.calcularQuantidadeDeReservasPorStatusNoMes(StatusDaReserva.CANCELADA)).append(" cancelamentos\n\n");
+
+        relatorio.append("Taxa de cancelamento\n");
+        double taxaCancelamento = geradorRelatorioMensal.calcularTaxaDeCancelamento();
+        relatorio.append("Taxa de Cancelamento: ").append(String.format("%.2f", taxaCancelamento)).append("%\n\n");
+
+        relatorio.append("Taxa de ocupação\n");
+        double taxaOcupacao = geradorRelatorioMensal.calcularTaxaDeOcupacao();
+        relatorio.append("Taxa de Ocupação: ").append(String.format("%.2f", taxaOcupacao)).append("%\n\n");
+
+        relatorio.append("Distribuição por tipo de quarto\n");
+        relatorio.append("Standard: ").append(geradorRelatorioMensal.calcularTaxaDeOcupacaoPorCategoriaDeQuarto(CategoriaDoQuarto.STANDARD)).append("%\n");
+        relatorio.append("Suíte: ").append(geradorRelatorioMensal.calcularTaxaDeOcupacaoPorCategoriaDeQuarto(CategoriaDoQuarto.SUITE)).append("%\n\n");
+
+        double mediaPermanencia = geradorRelatorioMensal.calcularMediaDePermanenciaDosHospedesNoMes();
+        relatorio.append("Média de permanência dos hóspedes\n");
+        relatorio.append("Média de Permanência: ").append(String.format("%.2f", mediaPermanencia)).append(" dias\n\n");
+
+        long quantidadeDeClientesDistintosNoMes = geradorRelatorioMensal.calcularClientesDistintosNoMes();
+        relatorio.append("Clientes distintos no mês\n");
+        relatorio.append("Clientes distintos: ").append(quantidadeDeClientesDistintosNoMes).append(" clientes\n\n");
+
+        relatorio.append("Lista dos quartos mais utilizados: \n");
+        List<QuartoAbstrato> quartosMaisReservados = geradorRelatorioMensal.listarQuartosMaisReservadosNoMes();
+        for (int indice = 0; indice < quartosMaisReservados.size(); indice++) {
+            QuartoAbstrato quarto = quartosMaisReservados.get(indice);
+            relatorio.append(indice + 1).append(". ").append(quarto.toString()).append(repositorioReservas.listarReservasPorQuarto(quarto.getNumeroIdentificador()).size()).append("\n");
         }
+
+        String nomeRelatorio = "RelatorioGerente_" + mesAno.format(DateTimeFormatter.ofPattern("MM_yyyy")) + ".txt";
+        repositorioRelatorios.salvarRelatorio(relatorio.toString(), nomeRelatorio);
     }
-
-    private List<Reserva> listarReservasPorCategoriaDoQuarto(CategoriaDoQuarto categoria) {
-        List<Reserva> reservasPorCategoria;
-        return reservasPorCategoria = repositorioReservas.listarReservas().stream().filter(reserva -> reserva.getQuarto().getCategoria().equals(categoria)).toList();
-    }
-
-    private long calcularQuantidadeDeReservasPorCateogiraDeQuarto(CategoriaDoQuarto categoria) {
-        List<Reserva> reservasPorCategoria = listarReservasPorCategoriaDoQuarto(categoria);
-        return reservasPorCategoria.size();
-    }
-
-    private long calcularQuantidadeTotalDeReservas() {
-        List<Reserva> reservas = repositorioReservas.listarReservas();
-        return reservas.size();
-    }
-
-    private double calcularTaxaDeCancelamento() {
-        double canceladas = (double) calcularQuantidadeDeReservasPorStatus(StatusDaReserva.CANCELADA);
-        double total = (double) calcularQuantidadeTotalDeReservas();
-
-        if (total == 0) {
-            return 0.0;
-        }
-        return (canceladas / total) * 100;
-    }
-
-    private long calcularQuantidadeDeReservasPorStatus(StatusDaReserva status) {
-        List<Reserva> reservasPorStatus = repositorioReservas.listarReservasPorStatus(status);
-        return reservasPorStatus.size();
-    }
-
-    private long calcularQuantidadeDeQuartos() {
-        List<QuartoAbstrato> quartos = repositorioQuartos.listarQuartos();
-        return quartos.size();
-    }
-
-    private double calcularTaxaDeOcupacao() {
-        long quantidadeDeReservasOcupadas =
-                calcularQuantidadeDeReservasPorStatus(StatusDaReserva.ATIVA) + calcularQuantidadeDeReservasPorStatus(StatusDaReserva.EM_USO);
-
-
-    }
-
-    private double calcularTaxaDeOcupacao(LocalDate data) {
-        long quantidadeDeReservasOcupadas =
-                calcularQuantidadeDeReservasPorStatus(StatusDaReserva.ATIVA) + calcularQuantidadeDeReservasPorStatus(StatusDaReserva.EM_USO);
-
-
-
-        return taxa;
-    }
-
-    private int calcularDiasDoMes(int mes, int ano) {
-        YearMonth anoMes = YearMonth.of(ano, mes);
-        return anoMes.lengthOfMonth();
-    }
-
 
 }

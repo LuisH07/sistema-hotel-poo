@@ -2,6 +2,7 @@ package negocio;
 
 import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
+import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.*;
 import excecoes.negocio.reserva.*;
@@ -18,28 +19,6 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
     public NegocioAtendente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos){
         this.repositorioReservas = repositorioReservas;
         this.repositorioQuartos = repositorioQuartos;
-    }
-
-    @Override
-    public void fazerReserva(Reserva novaReserva) throws ReservaInvalidaException, ReservaJaCadastradaException,
-            ConflitoDeDatasException, ErroAoSalvarDadosException {
-
-        if (!novaReserva.isValida()) {
-            throw new ReservaInvalidaException("Informações de reserva inválidas!");
-        }
-        if (repositorioReservas.existeReserva(novaReserva.getIdReserva())) {
-            throw new ReservaJaCadastradaException("Reserva já existe!");
-        }
-
-        List<Reserva> reservasNoQuarto = Stream.concat(repositorioReservas.listarReservasPorStatus(StatusDaReserva.ATIVA).stream(), repositorioReservas.listarReservasPorStatus(StatusDaReserva.EM_USO).stream())
-                .filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(novaReserva.getQuarto().getNumeroIdentificador())).toList();
-        boolean quartoDisponivel = reservasNoQuarto.stream().noneMatch(reserva -> reserva.getDataInicio().isBefore(novaReserva.getDataFim()) && reserva.getDataFim().isAfter(novaReserva.getDataInicio()));
-
-        if (!quartoDisponivel) {
-            throw new ConflitoDeDatasException("Quarto " + novaReserva.getQuarto().getNumeroIdentificador() + " já reservado para o período selecionado.");
-        }
-
-        repositorioReservas.adicionarReserva(novaReserva);
     }
 
     @Override
@@ -98,8 +77,15 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
     }
 
     @Override
-    public boolean autenticar(String email, String senha) {
-        return email.equals(Cargo.ATENDENTE.getEmail()) && senha.equals(Cargo.ATENDENTE.getSenha());
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+        if (!email.equals(Cargo.ATENDENTE.getEmail()) || !senha.equals(Cargo.ATENDENTE.getSenha())) {
+            throw new AutenticacaoFalhouException("Credenciais inválidas.");
+        }
+        return true;
+    }
+
+    public Reserva buscarReservaPorId(String idReserva) {
+        return repositorioReservas.buscarReservaPorId(idReserva);
     }
 
 }

@@ -1,45 +1,47 @@
 package iu;
 
+import fachada.FachadaAtendente;
+import fachada.FachadaAssistenteFinanceiro;
+import fachada.FachadaGerente;
+
 import java.util.Scanner;
 
 public class TelaFuncionario {
 
     private Scanner scanner;
-    private TelaAtendente telaAtendente;
-    private TelaAssistenteFinanceiro telaAssistenteFinanceiro;
-    private TelaGerente telaGerente;
-    private String tokenAtendente;
-    private String tokenAssistenteFinanceiro;
-    private String tokenGerente;
+    private FachadaAtendente fachadaAtendente;
 
     public TelaFuncionario() {
         scanner = new Scanner(System.in);
-        tokenAtendente = "40028922";
-        tokenAssistenteFinanceiro = "12345678";
-        tokenGerente = "98765432";
     }
-    // Aqui os tokens estão salvos em Strings.
-    // Podemos salvá-los em arquivos futuramente.
-    // Também não é ideal que eles estejam declarados no arquivo da tela.
 
     public void iniciar() {
         while (true) {
-            System.out.println(">>>> DIGITE SEU TOKEN DE FUNCIONARIO <<<<");
+            System.out.println(">>>> QUAL O SEU CARGO? <<<<");
+            System.out.println("1 - Atendente");
+            System.out.println("2 - Assistente Financeiro");
+            System.out.println("3 - Gerente");
+            System.out.println("0 - voltar");
 
-            String token = scanner.nextLine();
+            String opcao = scanner.nextLine();
 
-            switch (token) {
-                case tokenAtendente:
-                    telaAtendente.iniciar(); // Implementar
+            switch (opcao) {
+                case "1":
+                    System.out.println(">>>> DIGITE SEU EMAIL <<<<");
+                    String email = scanner.nextLine();
+                    System.out.println(">>>> DIGITE SUA SENHA <<<<");
+                    String senha = scanner.nextLine();
+                    if (fachadaAtendente.autenticar(email, senha)){
+                        telaAtendente.iniciar();
+                    } else {
+                        System.out.println("Login falhou");
+                    }
                     break;
-                case tokenAssistenteFinanceiro:
-                    telaAssistenteFinanceiro.iniciar(); // Implementar
+                case "2":
                     break;
-                case tokenGerente:
-                    telaGerente.iniciar(); // Implementar
+                case "3":
                     break;
                 case "0":
-                    System.exit(0);
                     break;
                 default:
                     System.out.println("<Operação inválida. Tente novamente.>");
