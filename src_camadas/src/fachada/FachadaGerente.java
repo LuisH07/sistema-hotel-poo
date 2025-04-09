@@ -3,12 +3,10 @@ package fachada;
 import dados.relatorios.RepositorioRelatorios;
 import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
-import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
-import negocio.NegocioAtendente;
 import negocio.NegocioGerente;
 import negocio.entidade.Reserva;
 
@@ -17,10 +15,12 @@ import java.time.YearMonth;
 import java.util.List;
 
 public class FachadaGerente {
+
     private NegocioGerente negocioGerente;
 
-    public FachadaGerente(NegocioAtendente negocioAtendente) {
-        this.negocioGerente = negocioGerente;
+    public FachadaGerente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos,
+                          RepositorioRelatorios repositorioRelatorios) {
+        negocioGerente = new NegocioGerente(repositorioReservas, repositorioQuartos, repositorioRelatorios);
     }
 
     public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {

@@ -1,6 +1,7 @@
 package negocio;
 
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.cliente.ClienteNaoEncontradoException;
 
 public interface IAutenticacao {
 

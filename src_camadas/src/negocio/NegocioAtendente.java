@@ -22,6 +22,14 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
     }
 
     @Override
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+        if (!email.equals(Cargo.ATENDENTE.getEmail()) || !senha.equals(Cargo.ATENDENTE.getSenha())) {
+            throw new AutenticacaoFalhouException("Credenciais inválidas.");
+        }
+        return true;
+    }
+
+    @Override
     public void cancelarReserva(Reserva reserva) throws ReservaInvalidaException, ReservaNaoEncontradaException,
             ErroAoSalvarDadosException {
         if (!reserva.isValida()) {
@@ -74,14 +82,6 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
 
         reserva.setStatus(StatusDaReserva.FINALIZADA);
         repositorioReservas.atualizarReserva(reserva);
-    }
-
-    @Override
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
-        if (!email.equals(Cargo.ATENDENTE.getEmail()) || !senha.equals(Cargo.ATENDENTE.getSenha())) {
-            throw new AutenticacaoFalhouException("Credenciais inválidas.");
-        }
-        return true;
     }
 
     public Reserva buscarReservaPorId(String idReserva) {

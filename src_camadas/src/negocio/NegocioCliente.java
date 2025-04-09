@@ -4,8 +4,10 @@ import dados.cliente.RepositorioClientes;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import excecoes.negocio.cliente.ClienteInvalidoException;
 import excecoes.negocio.cliente.ClienteJaExisteException;
+import excecoes.negocio.cliente.ClienteNaoEncontradoException;
 import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaJaCadastradaException;
@@ -22,9 +24,19 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
     private RepositorioClientes repositorioClientes;
     private RepositorioReservas repositorioReservas;
 
-    public NegocioCliente() throws ErroAoCarregarDadosException {
-        this.repositorioClientes = new RepositorioClientes();
-        this.repositorioReservas = new RepositorioReservas();
+    public NegocioCliente(RepositorioClientes repositorioClientes, RepositorioReservas repositorioReservas) throws ErroAoCarregarDadosException {
+        this.repositorioClientes = repositorioClientes;
+        this.repositorioReservas = repositorioReservas;
+    }
+
+    @Override
+    public boolean autenticar(String email, String cpf) throws AutenticacaoFalhouException {
+        Cliente cliente = repositorioClientes.buscarClientePorCpf(cpf);
+        if (cliente == null || !email.equals(cliente.getEmail())){
+            throw new AutenticacaoFalhouException("Credenciais inválidas.");
+        }
+
+        return true;
     }
 
     public void fazerReserva(Reserva novaReserva) throws ErroAoSalvarDadosException, ReservaInvalidaException, ReservaJaCadastradaException, ConflitoDeDatasException {
@@ -37,9 +49,10 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
 
         List<Reserva> reservasNoQuarto = Stream.concat(repositorioReservas.listarReservasPorStatus(StatusDaReserva.ATIVA).stream(), repositorioReservas.listarReservasPorStatus(StatusDaReserva.EM_USO).stream())
                 .filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(novaReserva.getQuarto().getNumeroIdentificador())).toList();
-        boolean quartoDisponivel = reservasNoQuarto.stream().noneMatch(reserva -> reserva.getDataInicio().isBefore(novaReserva.getDataFim()) && reserva.getDataFim().isAfter(novaReserva.getDataInicio()));
 
-        if (!quartoDisponivel) {
+        boolean existeConflitoDeDatas =
+                reservasNoQuarto.stream().anyMatch(reserva -> reserva.getDataInicio().isBefore(novaReserva.getDataFim()) && reserva.getDataFim().isAfter(novaReserva.getDataInicio()));
+        if (existeConflitoDeDatas) {
             throw new ConflitoDeDatasException("Quarto " + novaReserva.getQuarto().getNumeroIdentificador() + " já reservado para o período selecionado.");
         }
 
@@ -70,6 +83,7 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
         if (repositorioClientes.existeCliente(novoCliente.getCpf())){
             throw new ClienteJaExisteException("Cliente já cadastrado!");
         }
+
         repositorioClientes.adicionarCliente(novoCliente);
     }
 
@@ -78,18 +92,12 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
         return repositorioReservas.listarReservasPorCliente(cliente.getCpf());
     }
 
-    @Override
-    public boolean autenticar(String email, String cpf) {
-        Cliente cliente = repositorioClientes.buscarClientePorCpf(cpf);
-        if (cliente == null){
-            return false;
+    public Reserva buscarReservaPorId(String idReserva) throws ReservaNaoEncontradaException {
+        Reserva reserva = repositorioReservas.buscarReservaPorId(idReserva);
+        if (reserva == null) {
+            throw new ReservaNaoEncontradaException("Reserva não encontrada!");
         }
-        return email.equals(cliente.getEmail());
-        
-    }
-
-    public Reserva buscarReservaPorId(String idReserva) {
-        return repositorioReservas.buscarReservaPorId(idReserva);
+        return reserva;
     }
 
 }
