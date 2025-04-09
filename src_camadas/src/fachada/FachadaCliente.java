@@ -5,8 +5,11 @@ import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.DataInvalidaException;
 import excecoes.negocio.cliente.ClienteInvalidoException;
 import excecoes.negocio.cliente.ClienteNaoEncontradoException;
+import excecoes.negocio.quarto.QuartoInvalidoException;
+import excecoes.negocio.quarto.QuartoNaoEncontradoException;
 import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaJaCadastradaException;
@@ -33,56 +36,75 @@ public class FachadaCliente {
         return negocioCliente.autenticar(email, senha);
     }
 
-    public String listarQuartosDisponiveisNoPeriodo(String dataInicio, String dataFim) {
+    public String listarQuartosDisponiveisNoPeriodo(String dataInicio, String dataFim) throws DataInvalidaException {
+        LocalDate dataInicioLocalDate = negocioCliente.converterDataStringParaLocalDate(dataInicio);
+        LocalDate dataFimLocalDate = negocioCliente.converterDataStringParaLocalDate(dataFim);
+        List<QuartoAbstrato> quartosDisponiveis = negocioCliente.listarQuartosDisponiveisNoPeriodo(dataInicioLocalDate, dataFimLocalDate);
 
-        List<QuartoAbstrato> quartosDisponiveis = negocioCliente.listarQuartosDisponiveisNoPeriodo();
-
-    }
-
-    public void fazerReserva(String numeroDeQuarto) throws ClienteNaoEncontradoException, ClienteInvalidoException {
-        Cliente cliente = negocioCliente.buscarClientePorCpf(cpf);
-
-
-
-        Reserva reserva = new Reserva(cliente, quarto, inicio, fim);
-        try {
-            negocioCliente.fazerReserva(reserva);
-        } catch (ReservaInvalidaException | ReservaJaCadastradaException | ErroAoSalvarDadosException |
-                 ConflitoDeDatasException excecao) {
-            throw new RuntimeException(excecao);
-        }
-    }
-
-    public String consultarHistorico(String cpf) {
-            Cliente cliente = negocioCliente.buscarClientePorCpf(cpf);
-
-            List<Reserva> historicoReservas = negocioCliente.consultarHistorico(cliente);
-            String historicoFormatado = "";
-            if (historicoReservas != null && !historicoReservas.isEmpty()){
-                historicoFormatado += "Histórico de Reservas com cpf " + cpf + ":\n";
-                for(Reserva reserva : historicoReservas){
-                    historicoFormatado += "Reserva para " + reserva.getCliente()
-                            + " de " + reserva.getDataInicio()
-                            + "até " + reserva.getDataFim();
-                }
-            }else{
-                historicoFormatado += "Nenhum histórico de reservas encontrado!";
+        StringBuilder quartosDisponiveisFormatados = new StringBuilder();
+        if (quartosDisponiveis != null && !quartosDisponiveis.isEmpty()){
+            quartosDisponiveisFormatados.append("Quartos Disponíveis no período: \n\n");
+            for (QuartoAbstrato quarto : quartosDisponiveis) {
+                quartosDisponiveisFormatados.append(quarto.toString());
             }
-            return historicoFormatado;
+        } else{
+            quartosDisponiveisFormatados.append("Nenhum quarto disponível encontrado!");
+        }
+        return quartosDisponiveisFormatados.toString();
     }
 
-    public void cancelarReserva(String cpf, String idReserva) throws ReservaInvalidaException,
-            ReservaNaoEncontradaException,
-            ErroAoSalvarDadosException,
-            IllegalArgumentException, ClienteInvalidoException {
+    public void fazerReserva(String cpf, String numeroDeQuarto, String dataInicio, String dataFim) throws ClienteNaoEncontradoException,
+            ClienteInvalidoException, QuartoNaoEncontradoException, QuartoInvalidoException, DataInvalidaException, ConflitoDeDatasException, ErroAoSalvarDadosException, ReservaInvalidaException, ReservaJaCadastradaException {
+        Cliente cliente = negocioCliente.buscarClientePorCpf(cpf);
+        QuartoAbstrato quarto = negocioCliente.buscarQuartoPorNumeroIdentificador(numeroDeQuarto);
+        LocalDate dataInicioLocalDate = negocioCliente.converterDataStringParaLocalDate(dataInicio);
+        LocalDate dataFimLocalDate = negocioCliente.converterDataStringParaLocalDate(dataFim);
 
-        Cliente cliente = buscarClientePorCpf(cpf);
+        Reserva reserva = new Reserva(cliente, quarto, dataInicioLocalDate, dataFimLocalDate);
+
+        negocioCliente.fazerReserva(reserva);
+    }
+
+    public String consultarHistorico(String cpf) throws ClienteInvalidoException, ClienteNaoEncontradoException {
+            Cliente cliente = negocioCliente.buscarClientePorCpf(cpf);
+            List<Reserva> historicoReservas = negocioCliente.consultarHistorico(cliente);
+            StringBuilder historicoFormatado = new StringBuilder();
+            if (historicoReservas != null && !historicoReservas.isEmpty()){
+                historicoFormatado.append("Histórico de Reservas: \n\n");
+                for (Reserva reserva : historicoReservas) {
+                    historicoFormatado.append(reserva.toString());
+                }
+            } else{
+                historicoFormatado.append("Nenhum histórico de reservas encontrado!");
+            }
+            return historicoFormatado.toString();
+    }
+
+    public String listarReservasAtivasPorCliente(String cpf) {
+        List<Reserva> reservasAtivas = negocioCliente.listarReservasAtivasPorCliente(cpf);
+
+        StringBuilder listaDeReservasAtivas = new StringBuilder();
+        if (reservasAtivas != null && !reservasAtivas.isEmpty()){
+            listaDeReservasAtivas.append("Reservas ativas: \n\n");
+            for (Reserva reserva : reservasAtivas) {
+                listaDeReservasAtivas.append(reserva.toString());
+            }
+        } else{
+            listaDeReservasAtivas.append("Nenhuma reserva ativa encontrada!");
+        }
+        return listaDeReservasAtivas.toString();
+    }
+
+    public void cancelarReserva(String idReserva, String cpf) throws ReservaInvalidaException,
+            ReservaNaoEncontradaException,
+            ErroAoSalvarDadosException, ClienteInvalidoException, ClienteNaoEncontradoException {
+
+        Cliente cliente = negocioCliente.buscarClientePorCpf(cpf);
         if (cliente == null) {
             throw new ClienteInvalidoException("Cliente com CPF " + cpf + " não encontrado.");
         }
 
         Reserva reserva = negocioCliente.buscarReservaPorId(idReserva);
-
         if (!reserva.getCliente().getCpf().equals(cpf)) {
             throw new ReservaInvalidaException("Esta reserva não pertence ao cliente informado.");
         }

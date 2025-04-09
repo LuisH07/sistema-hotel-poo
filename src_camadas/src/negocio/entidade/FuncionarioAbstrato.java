@@ -4,6 +4,14 @@ import negocio.entidade.enums.Cargo;
 
 import java.io.Serializable;
 
+/**
+ * Classe abstrata que representa um funcionário do sistema.
+ * Contém informações básicas como cargo, email e senha, que são definidos pelo enum {@link Cargo}.
+ * Classes concretas de funcionários devem herdar desta classe.
+ *
+ * @author [Luiz Henrique]
+ */
+
 public abstract class FuncionarioAbstrato implements Serializable {
     private Cargo cargo;
 

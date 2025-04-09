@@ -3,6 +3,14 @@ package negocio.entidade;
 import negocio.entidade.enums.CapacidadeDoQuarto;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
+/**
+ * Classe abstrata que representa um quarto de hotel.
+ * Contém informações como número de identificação, capacidade e preço da diária.
+ * Classes concretas de quartos (Standard e Suite) devem herdar desta classe
+ * e implementar os métodos abstratos {@link #calcularPrecoDiaria()} e {@link #getCategoria()}.
+ *
+ * @author [Arthur]
+ */
 public abstract class QuartoAbstrato {
     private final String numeroIdentificador;
     private CapacidadeDoQuarto capacidade;
@@ -41,7 +49,7 @@ public abstract class QuartoAbstrato {
 
     @Override
     public String toString() {
-        return "Quarto " + numeroIdentificador + ":\n" +
+        return "Quarto " + numeroIdentificador + ": \n" +
                 "- Categoria: " + getCategoria() + "\n" +
                 "- Capacidade: " + capacidade + "\n" +
                 "- Preço por noite: " + precoDiaria + "\n";
@@ -49,6 +57,12 @@ public abstract class QuartoAbstrato {
 
     public abstract void calcularPrecoDiaria();
 
+    /**
+     * Método abstrato para obter a categoria do quarto.
+     * A categoria é definida pela enum {@link CategoriaDoQuarto}.
+     *
+     * @return A categoria do quarto.
+     */
     public abstract CategoriaDoQuarto getCategoria();
 
 }
