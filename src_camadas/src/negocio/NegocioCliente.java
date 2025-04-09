@@ -7,7 +7,6 @@ import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import excecoes.negocio.cliente.ClienteInvalidoException;
 import excecoes.negocio.cliente.ClienteJaExisteException;
-import excecoes.negocio.cliente.ClienteNaoEncontradoException;
 import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaJaCadastradaException;

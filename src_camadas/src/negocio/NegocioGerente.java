@@ -111,8 +111,12 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio, IAutenti
         repositorioRelatorios.salvarRelatorio(relatorio.toString(), nomeRelatorio);
     }
 
-    public Reserva buscarReservaPorId(String idReserva) {
-        return repositorioReservas.buscarReservaPorId(idReserva);
+    public Reserva buscarReservaPorId(String idReserva) throws ReservaNaoEncontradaException {
+        Reserva reserva = repositorioReservas.buscarReservaPorId(idReserva);
+        if (reserva == null) {
+            throw new ReservaNaoEncontradaException("Reserva não encontrada!");
+        }
+        return reserva;
     }
 
 }
