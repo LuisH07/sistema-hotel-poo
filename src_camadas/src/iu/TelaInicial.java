@@ -3,20 +3,19 @@ package iu;
 import java.util.Scanner;
 
 public class TelaInicial {
-
     private Scanner scanner;
     private TelaCliente telaCliente;
     private TelaFuncionario telaFuncionario;
 
     public TelaInicial() {
         scanner = new Scanner(System.in);
-        telaCliente = new TelaCliente();
-        telaFuncionario = new TelaFuncionario();
+        this.telaCliente = new TelaCliente();
+        this.telaFuncionario = new TelaFuncionario();
     }
 
     public void iniciar() {
         while (true) {
-            System.out.println(">>>> SELECIONE O MÓDULO QUE DESEJA INICIAR <<<<");
+            System.out.println("\n>>>> SELECIONE O MÓDULO <<<<");
             System.out.println("1 - Cliente");
             System.out.println("2 - Funcionário");
             System.out.println("0 - Sair");
@@ -31,6 +30,7 @@ public class TelaInicial {
                     telaFuncionario.iniciar();
                     break;
                 case "0":
+                    System.out.println("Saindo do sistema...");
                     System.exit(0);
                     break;
                 default:
