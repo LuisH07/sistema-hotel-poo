@@ -6,6 +6,7 @@ import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import excecoes.negocio.autenticacao.DataInvalidaException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import negocio.NegocioAssistenteFinanceiro;
 
 import java.time.YearMonth;
@@ -14,11 +15,10 @@ public class FachadaAssistenteFinanceiro {
     private NegocioAssistenteFinanceiro negocioAssistenteFinanceiro;
 
     public FachadaAssistenteFinanceiro(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos, RepositorioRelatorios repositorioRelatorios) {
-        negocioAssistenteFinanceiro = new NegocioAssistenteFinanceiro(repositorioReservas, repositorioQuartos,
-                repositorioRelatorios);
+        negocioAssistenteFinanceiro = new NegocioAssistenteFinanceiro(repositorioReservas, repositorioQuartos, repositorioRelatorios);
     }
 
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException {
         return negocioAssistenteFinanceiro.autenticar(email, senha);
     }
 

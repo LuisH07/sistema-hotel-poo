@@ -5,8 +5,11 @@ import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.CpfInvalidoException;
 import excecoes.negocio.autenticacao.DataInvalidaException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import excecoes.negocio.cliente.ClienteInvalidoException;
+import excecoes.negocio.cliente.ClienteJaExisteException;
 import excecoes.negocio.cliente.ClienteNaoEncontradoException;
 import excecoes.negocio.quarto.QuartoInvalidoException;
 import excecoes.negocio.quarto.QuartoNaoEncontradoException;
@@ -32,8 +35,13 @@ public class FachadaCliente {
         negocioCliente = new NegocioCliente(repositorioClientes, repositorioReservas, repositorioQuartos);
     }
 
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException, CpfInvalidoException {
         return negocioCliente.autenticar(email, senha);
+    }
+
+    public void cadastrarCliente(String nome, String email, String cpf) throws ErroAoCarregarDadosException, ErroAoSalvarDadosException, EmailInvalidoException, ClienteJaExisteException, ClienteInvalidoException, CpfInvalidoException {
+        Cliente cliente = new Cliente(nome, email, cpf);
+        negocioCliente.cadastrarCliente(cliente);
     }
 
     public String listarQuartosDisponiveisNoPeriodo(String dataInicio, String dataFim) throws DataInvalidaException {

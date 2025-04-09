@@ -1,5 +1,13 @@
 package iu;
 
+import dados.quartos.RepositorioQuartos;
+import dados.relatorios.RepositorioRelatorios;
+import dados.reserva.RepositorioReservas;
+import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.autenticacao.DataInvalidaException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
+import excecoes.negocio.reserva.ReservaInvalidaException;
+import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import fachada.FachadaGerente;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import java.util.Scanner;
@@ -8,21 +16,21 @@ public class TelaGerente {
     private Scanner scanner;
     private FachadaGerente fachada;
 
-    public TelaGerente() {
-        this.scanner = new Scanner(System.in);
-        this.fachada = new FachadaGerente();
+    public TelaGerente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos,
+                       RepositorioRelatorios repositorioRelatorios) {
+        scanner = new Scanner(System.in);
+        fachada = new FachadaGerente(repositorioReservas, repositorioQuartos, repositorioRelatorios);
     }
 
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException {
         return fachada.autenticar(email, senha);
     }
 
     public void iniciar() {
         while (true) {
-            System.out.println("\n>>>> MENU GERENTE <<<<");
+            System.out.println("\n\n>>>> MENU GERENTE <<<<");
             System.out.println("1 - Gerar Relatório Gerencial");
-            System.out.println("2 - Consultar Todas as Reservas");
-            System.out.println("3 - Cancelar Reserva");
+            System.out.println("2 - Gerenciar Reservas");
             System.out.println("0 - Sair");
 
             String opcao = scanner.nextLine();
@@ -32,10 +40,7 @@ public class TelaGerente {
                     gerarRelatorio();
                     break;
                 case "2":
-                    consultarReservas();
-                    break;
-                case "3":
-                    cancelarReserva();
+                    gerenciarReservas();
                     break;
                 case "0":
                     return;
@@ -47,48 +52,62 @@ public class TelaGerente {
 
     private void gerarRelatorio() {
         System.out.println("\n>>>> GERAR RELATÓRIO GERENCIAL <<<<");
-        System.out.print("Mês (MM): ");
-        String mes = scanner.nextLine();
-        System.out.print("Ano (AAAA): ");
-        String ano = scanner.nextLine();
+        System.out.print("Mês/Ano (MM/AAAA): ");
+        String mesAno = scanner.nextLine();
 
         try {
-            fachada.gerarRelatorio(mes, ano);
+            fachada.gerarRelatorio(mesAno);
             System.out.println("<Relatório gerado com sucesso!>");
-        } catch (Exception excecao) {
-            System.out.println("<Erro ao gerar relatório: " + e.getMessage() + ">");
+        } catch (DataInvalidaException | ErroAoSalvarDadosException excecao) {
+            System.out.println("<Erro ao gerar relatório: " + excecao.getMessage() + ">");
+        }
+    }
+
+    private void gerenciarReservas(){
+        while (true) {
+            System.out.println("\n\n>>>> GERENCIAMENTO DE RESERVAS <<<<");
+            System.out.println("1 - Consultar Histórico de Todas as Reservas");
+            System.out.println("2 - Cancelar Reserva");
+            System.out.println("0 - Sair");
+
+            String opcao = scanner.nextLine();
+
+            switch (opcao) {
+                case "1":
+                    consultarReservas();
+                    break;
+                case "2":
+                    cancelarReserva();
+                    break;
+                case "0":
+                    return;
+                default:
+                    System.out.println("<Operação inválida. Tente novamente.>");
+            }
         }
     }
 
     private void consultarReservas() {
-        System.out.println("\n>>>> TODAS AS RESERVAS <<<<");
-        try {
-            var reservas = fachada.consultarHistorico();
-            if (reservas.isEmpty()) {
-                System.out.println("<Nenhuma reserva encontrada.>");
-                return;
-            }
-
-            reservas.forEach(reserva -> {
-                System.out.println("ID: " + reserva.getIdReserva() +
-                        ", Quarto: " + reserva.getQuarto().getNumeroIdentificador() +
-                        ", Status: " + reserva.getStatus());
-            });
-        } catch (Exception excecao) {
-            System.out.println("<Erro ao consultar reservas: " + e.getMessage() + ">");
-        }
+        System.out.println("\n>>>> HISTÓRICO DE RESERVAS <<<<\n");
+        String historico = fachada.consultarHistorico();
+        System.out.println(historico);
     }
 
     private void cancelarReserva() {
-        System.out.println("\n>>>> CANCELAR RESERVA <<<<");
+        System.out.println("\n>>>> CANCELAR RESERVA <<<<\n");
+
+        String listaDeReservasAtivas = fachada.listarReservasAtivas();
+        System.out.println(listaDeReservasAtivas);
+
         System.out.print("ID da Reserva: ");
         String idReserva = scanner.nextLine();
 
         try {
             fachada.cancelarReserva(idReserva);
             System.out.println("<Reserva cancelada com sucesso!>");
-        } catch (Exception excecao) {
-            System.out.println("<Erro ao cancelar reserva: " + e.getMessage() + ">");
+        } catch (ErroAoSalvarDadosException | ReservaNaoEncontradaException | ReservaInvalidaException excecao) {
+            System.out.println("<Erro ao cancelar reserva: " + excecao.getMessage() + ">");
         }
     }
+
 }

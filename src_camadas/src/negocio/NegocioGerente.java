@@ -5,6 +5,7 @@ import dados.relatorios.RepositorioRelatorios;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import negocio.entidade.QuartoAbstrato;
@@ -39,11 +40,18 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio, IAutenti
     }
 
     @Override
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException {
+        if (!validarEmail(email)) {
+            throw new EmailInvalidoException("Email inválido!");
+        }
+
         if (!email.equals(Cargo.GERENTE.getEmail()) || !senha.equals(Cargo.GERENTE.getSenha())) {
             throw new AutenticacaoFalhouException("Credenciais inválidas.");
         }
         return true;
+    }
+    private boolean validarEmail(String email) {
+        return email.contains("@");
     }
 
     @Override

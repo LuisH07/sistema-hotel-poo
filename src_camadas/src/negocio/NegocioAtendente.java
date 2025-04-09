@@ -3,6 +3,7 @@ package negocio;
 import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import negocio.entidade.Reserva;
 import negocio.entidade.enums.*;
 import excecoes.negocio.reserva.*;
@@ -41,11 +42,18 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
      * @throws AutenticacaoFalhouException Se as credenciais forem inválidas.
      */
     @Override
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException {
+        if (!validarEmail(email)) {
+            throw new EmailInvalidoException("Email inválido!");
+        }
+
         if (!email.equals(Cargo.ATENDENTE.getEmail()) || !senha.equals(Cargo.ATENDENTE.getSenha())) {
             throw new AutenticacaoFalhouException("Credenciais inválidas.");
         }
         return true;
+    }
+    private boolean validarEmail(String email) {
+        return email.contains("@");
     }
 
     public List<Reserva> listarReservasAtivas() {

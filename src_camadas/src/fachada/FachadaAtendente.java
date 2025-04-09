@@ -4,6 +4,7 @@ import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.*;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import excecoes.negocio.reserva.*;
 import negocio.NegocioAtendente;
 import negocio.entidade.Reserva;
@@ -17,7 +18,7 @@ public class FachadaAtendente {
         negocioAtendente = new NegocioAtendente(repositorioReservas, repositorioQuartos);
     }
 
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException {
         return negocioAtendente.autenticar(email, senha);
     }
 
@@ -47,7 +48,7 @@ public class FachadaAtendente {
         List<Reserva> historicoReservas = negocioAtendente.consultarHistorico();
         StringBuilder historicoFormatado = new StringBuilder();
         if (historicoReservas != null && !historicoReservas.isEmpty()){
-            historicoFormatado.append("Histórico de Reservas: \n\n");
+            historicoFormatado.append("Histórico de Reservas Ativas ou Em uso: \n\n");
             for (Reserva reserva : historicoReservas) {
                 historicoFormatado.append(reserva.toString());
             }

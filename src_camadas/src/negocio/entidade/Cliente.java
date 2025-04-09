@@ -10,20 +10,16 @@ import excecoes.dados.ErroAoCarregarDadosException;
  * @author [Maria Heloisa]
  */
 public class Cliente {
-    private String cpf;
     private String nome;
     private String email;
+    private String cpf;
 
     private RepositorioReservas repositorioReservas;
 
-    public Cliente(String cpf, String nome, String email) throws ErroAoCarregarDadosException {
-        this.cpf = cpf;
+    public Cliente(String nome, String email, String cpf) throws ErroAoCarregarDadosException {
         this.nome = nome;
         this.email = email;
-    }
-
-    public String getCpf() {
-        return cpf;
+        this.cpf = cpf;
     }
 
     public String getNome() {
@@ -32,6 +28,10 @@ public class Cliente {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getCpf() {
+        return cpf;
     }
 
     public boolean isValido() {
@@ -47,4 +47,5 @@ public class Cliente {
                 "nome = " + nome + "\n" +
                 "email = " + email + "\n ";
     }
+
 }

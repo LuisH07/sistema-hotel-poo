@@ -1,6 +1,11 @@
 package iu;
 
+import dados.quartos.RepositorioQuartos;
+import dados.relatorios.RepositorioRelatorios;
+import dados.reserva.RepositorioReservas;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
+
 import java.util.Scanner;
 
 public class TelaFuncionario {
@@ -9,16 +14,16 @@ public class TelaFuncionario {
     private TelaAssistenteFinanceiro telaAssistenteFinanceiro;
     private TelaGerente telaGerente;
 
-    public TelaFuncionario() {
-        this.scanner = new Scanner(System.in);
-        this.telaAtendente = new TelaAtendente();
-        this.telaAssistenteFinanceiro = new TelaAssistenteFinanceiro();
-        this.telaGerente = new TelaGerente();
+    public TelaFuncionario(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos, RepositorioRelatorios repositorioRelatorios) {
+        scanner = new Scanner(System.in);
+        telaAtendente = new TelaAtendente(repositorioReservas, repositorioQuartos);
+        telaAssistenteFinanceiro = new TelaAssistenteFinanceiro(repositorioReservas, repositorioQuartos, repositorioRelatorios);
+        telaGerente = new TelaGerente(repositorioReservas, repositorioQuartos, repositorioRelatorios);
     }
 
     public void iniciar() {
         while (true) {
-            System.out.println("\n>>>> QUAL O SEU CARGO? <<<<");
+            System.out.println("\n\n>>>> QUAL O SEU CARGO? <<<<");
             System.out.println("1 - Atendente");
             System.out.println("2 - Assistente Financeiro");
             System.out.println("3 - Gerente");
@@ -57,8 +62,8 @@ public class TelaFuncionario {
             } else {
                 System.out.println("<Credenciais inválidas.>");
             }
-        } catch (AutenticacaoFalhouException e) {
-            System.out.println("<Erro: " + e.getMessage() + ">");
+        } catch (AutenticacaoFalhouException | EmailInvalidoException excecao) {
+            System.out.println("<Erro: " + excecao.getMessage() + ">");
         }
     }
 
@@ -75,8 +80,8 @@ public class TelaFuncionario {
             } else {
                 System.out.println("<Credenciais inválidas.>");
             }
-        } catch (AutenticacaoFalhouException e) {
-            System.out.println("<Erro: " + e.getMessage() + ">");
+        } catch (AutenticacaoFalhouException | EmailInvalidoException excecao) {
+            System.out.println("<Erro: " + excecao.getMessage() + ">");
         }
     }
 
@@ -93,8 +98,9 @@ public class TelaFuncionario {
             } else {
                 System.out.println("<Credenciais inválidas.>");
             }
-        } catch (AutenticacaoFalhouException e) {
-            System.out.println("<Erro: " + e.getMessage() + ">");
+        } catch (AutenticacaoFalhouException | EmailInvalidoException excecao) {
+            System.out.println("<Erro: " + excecao.getMessage() + ">");
         }
     }
+
 }

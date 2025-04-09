@@ -6,6 +6,7 @@ import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import excecoes.negocio.autenticacao.DataInvalidaException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import negocio.NegocioGerente;
@@ -23,7 +24,7 @@ public class FachadaGerente {
         negocioGerente = new NegocioGerente(repositorioReservas, repositorioQuartos, repositorioRelatorios);
     }
 
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException {
         return negocioGerente.autenticar(email, senha);
     }
 

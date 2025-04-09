@@ -6,7 +6,9 @@ import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.CpfInvalidoException;
 import excecoes.negocio.autenticacao.DataInvalidaException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import excecoes.negocio.cliente.ClienteInvalidoException;
 import excecoes.negocio.cliente.ClienteJaExisteException;
 import excecoes.negocio.cliente.ClienteNaoEncontradoException;
@@ -50,13 +52,28 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
     }
 
     @Override
-    public boolean autenticar(String email, String cpf) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String cpf) throws AutenticacaoFalhouException, CpfInvalidoException, EmailInvalidoException {
         Cliente cliente = repositorioClientes.buscarClientePorCpf(cpf);
+        if (!validarCpf(cpf)) {
+            throw new CpfInvalidoException("CPF inválido!");
+        }
+
+        if (!validarEmail(email)) {
+            throw new EmailInvalidoException("Email inválido!");
+        }
         if (cliente == null || !email.equals(cliente.getEmail())){
             throw new AutenticacaoFalhouException("Credenciais inválidas.");
         }
 
         return true;
+    }
+
+    private boolean validarCpf(String cpf) {
+        return cpf.length() == 11;
+    }
+
+    private boolean validarEmail(String email) {
+        return email.contains("@");
     }
 
     public void fazerReserva(Reserva novaReserva) throws ErroAoSalvarDadosException, ReservaInvalidaException, ReservaJaCadastradaException, ConflitoDeDatasException {
@@ -96,7 +113,15 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
         repositorioReservas.atualizarReserva(reserva);
     }
 
-    public void cadastrarCliente(Cliente novoCliente) throws ClienteInvalidoException, ClienteJaExisteException, ErroAoSalvarDadosException {
+    public void cadastrarCliente(Cliente novoCliente) throws ClienteInvalidoException, ClienteJaExisteException, ErroAoSalvarDadosException, CpfInvalidoException, EmailInvalidoException {
+        if (!validarCpf(novoCliente.getCpf())) {
+            throw new CpfInvalidoException("CPF inválido!");
+        }
+
+        if (!validarEmail(novoCliente.getEmail())) {
+            throw new EmailInvalidoException("Email inválido!");
+        }
+
         if (!novoCliente.isValido()){
             throw new ClienteInvalidoException("Informações do cliente inválidas!");
         }

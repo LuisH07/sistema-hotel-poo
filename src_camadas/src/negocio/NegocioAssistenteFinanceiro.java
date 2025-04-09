@@ -5,6 +5,7 @@ import dados.relatorios.RepositorioRelatorios;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.EmailInvalidoException;
 import negocio.entidade.enums.Cargo;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
@@ -43,11 +44,18 @@ public class NegocioAssistenteFinanceiro implements IAutenticacao, IFluxoRelator
      * @throws AutenticacaoFalhouException Se as credenciais forem inválidas.
      */
     @Override
-    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException, EmailInvalidoException {
+        if (!validarEmail(email)) {
+            throw new EmailInvalidoException("Email inválido!");
+        }
+
         if (!email.equals(Cargo.ASSISTENTE_FINANCEIRO.getEmail()) || !senha.equals(Cargo.ASSISTENTE_FINANCEIRO.getSenha())) {
             throw new AutenticacaoFalhouException("Credenciais inválidas.");
         }
         return true;
+    }
+    private boolean validarEmail(String email) {
+        return email.contains("@");
     }
 
     /**
