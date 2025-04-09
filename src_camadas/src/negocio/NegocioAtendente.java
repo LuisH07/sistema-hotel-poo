@@ -21,28 +21,6 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
     }
 
     @Override
-    public void fazerReserva(Reserva novaReserva) throws ReservaInvalidaException, ReservaJaCadastradaException,
-            ConflitoDeDatasException, ErroAoSalvarDadosException {
-
-        if (!novaReserva.isValida()) {
-            throw new ReservaInvalidaException("Informações de reserva inválidas!");
-        }
-        if (repositorioReservas.existeReserva(novaReserva.getIdReserva())) {
-            throw new ReservaJaCadastradaException("Reserva já existe!");
-        }
-
-        List<Reserva> reservasNoQuarto = Stream.concat(repositorioReservas.listarReservasPorStatus(StatusDaReserva.ATIVA).stream(), repositorioReservas.listarReservasPorStatus(StatusDaReserva.EM_USO).stream())
-                .filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(novaReserva.getQuarto().getNumeroIdentificador())).toList();
-        boolean quartoDisponivel = reservasNoQuarto.stream().noneMatch(reserva -> reserva.getDataInicio().isBefore(novaReserva.getDataFim()) && reserva.getDataFim().isAfter(novaReserva.getDataInicio()));
-
-        if (!quartoDisponivel) {
-            throw new ConflitoDeDatasException("Quarto " + novaReserva.getQuarto().getNumeroIdentificador() + " já reservado para o período selecionado.");
-        }
-
-        repositorioReservas.adicionarReserva(novaReserva);
-    }
-
-    @Override
     public void cancelarReserva(Reserva reserva) throws ReservaInvalidaException, ReservaNaoEncontradaException,
             ErroAoSalvarDadosException {
         if (!reserva.isValida()) {

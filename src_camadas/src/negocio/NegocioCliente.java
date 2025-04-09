@@ -17,7 +17,7 @@ import negocio.entidade.enums.StatusDaReserva;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class NegocioCliente implements IFluxoReservas {
+public class NegocioCliente implements IFluxoReservas, IAutenticacao {
 
     private RepositorioClientes repositorioClientes;
     private RepositorioReservas repositorioReservas;
@@ -27,7 +27,6 @@ public class NegocioCliente implements IFluxoReservas {
         this.repositorioReservas = new RepositorioReservas();
     }
 
-    @Override
     public void fazerReserva(Reserva novaReserva) throws ErroAoSalvarDadosException, ReservaInvalidaException, ReservaJaCadastradaException, ConflitoDeDatasException {
         if (!novaReserva.isValida()) {
             throw new ReservaInvalidaException("Informações de reserva inválidas!");
@@ -79,6 +78,7 @@ public class NegocioCliente implements IFluxoReservas {
         return repositorioReservas.listarReservasPorCliente(cliente.getCpf());
     }
 
+    @Override
     public boolean autenticar(String email, String cpf) {
         Cliente cliente = repositorioClientes.buscarClientePorCpf(cpf);
         if (cliente == null){
@@ -86,4 +86,5 @@ public class NegocioCliente implements IFluxoReservas {
         }
         return email.equals(cliente.getEmail());
     }
+
 }

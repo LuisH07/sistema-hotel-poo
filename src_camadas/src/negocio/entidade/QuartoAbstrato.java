@@ -41,11 +41,10 @@ public abstract class QuartoAbstrato {
 
     @Override
     public String toString() {
-        return "Quarto:" + "\n" +
-                "numero = " + numeroIdentificador + "\n" +
-                "capacidade = " + capacidade + "\n" +
-                "categoria = " + getCategoria() + "\n" +
-                "preco por noite = " + precoDiaria + "\n";
+        return "Quarto " + numeroIdentificador + ":\n" +
+                "- Categoria: " + getCategoria() + "\n" +
+                "- Capacidade: " + capacidade + "\n" +
+                "- Preço por noite: " + precoDiaria + "\n";
     }
 
     public abstract void calcularPrecoDiaria();
