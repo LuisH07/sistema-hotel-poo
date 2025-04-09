@@ -70,7 +70,7 @@ public class NegocioAssistenteFinanceiro implements IAutenticacao, IFluxoRelator
         relatorio.append("Por diária: R$").append(String.format("%.2f", geradorRelatorio.calcularValorMedioPorDiaria())).append("\n");
         relatorio.append("Por reserva: R$ ").append(String.format("%.2f", geradorRelatorio.calcularValorMedioPorReserva())).append("\n");
 
-        String nomeArquivo = "RelatorioFinanceiro_" + mesAno.format(DateTimeFormatter.ofPattern("MM_yyyy"));
+        String nomeArquivo = "RelatorioFinanceiro_" + mesAno.format(DateTimeFormatter.ofPattern("MM_yyyy")) + ".txt";
         repositorioRelatorios.salvarRelatorio(relatorio.toString(), nomeArquivo);
     }
 
