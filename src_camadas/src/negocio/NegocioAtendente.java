@@ -84,8 +84,15 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
         repositorioReservas.atualizarReserva(reserva);
     }
 
-    public Reserva buscarReservaPorId(String idReserva) {
-        return repositorioReservas.buscarReservaPorId(idReserva);
-    }
+    public Reserva buscarReservaPorId(String idReserva) throws ReservaNaoEncontradaException, ReservaInvalidaException {
+        if (!repositorioReservas.existeReserva(idReserva)) {
+            throw new ReservaNaoEncontradaException("Reserva não encontrado!");
+        }
+        Reserva reserva = repositorioReservas.buscarReservaPorId(idReserva);
 
+        if (!reserva.isValida()) {
+            throw new ReservaInvalidaException("Informações de reserva inválidas!");
+        }
+        return reserva;
+    }
 }

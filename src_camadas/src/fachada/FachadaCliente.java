@@ -1,45 +1,48 @@
 package fachada;
 
+import dados.quartos.RepositorioQuartos;
+import dados.reserva.RepositorioReservas;
+import excecoes.dados.ErroAoCarregarDadosException;
 import excecoes.dados.ErroAoSalvarDadosException;
+import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
 import excecoes.negocio.cliente.ClienteInvalidoException;
+import excecoes.negocio.cliente.ClienteNaoEncontradoException;
 import excecoes.negocio.reserva.ConflitoDeDatasException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaJaCadastradaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import negocio.NegocioCliente;
 import negocio.entidade.Cliente;
-import negocio.entidade.Reserva;
 import negocio.entidade.QuartoAbstrato;
+import negocio.entidade.Reserva;
 import java.time.LocalDate;
 import dados.cliente.RepositorioClientes;
-import negocio.entidade.enums.StatusDaReserva;
 
 import java.util.List;
 
 public class FachadaCliente {
 
-    private RepositorioClientes repositorioClientes;
     private NegocioCliente negocioCliente;
 
-    public FachadaCliente(RepositorioClientes repositorioClientes, NegocioCliente negocioCliente) {
-        this.repositorioClientes = repositorioClientes;
-        this.negocioCliente = negocioCliente;
+    public FachadaCliente(RepositorioClientes repositorioClientes, RepositorioReservas repositorioReservas,
+                          RepositorioQuartos repositorioQuartos) throws ErroAoCarregarDadosException {
+        negocioCliente = new NegocioCliente(repositorioClientes, repositorioReservas, repositorioQuartos);
     }
 
-    public void fazerReserva(String cpf, QuartoAbstrato quarto, LocalDate inicio, LocalDate fim) {
-        Cliente cliente = repositorioClientes.buscarClientePorCpf(cpf);
+    public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
+        return negocioCliente.autenticar(email, senha);
+    }
 
-        if (cliente == null) {
-            throw new IllegalArgumentException("Cliente com CPF " + cpf + " não encontrado.");
-        }
+    public String listarQuartosDisponiveisNoPeriodo(String dataInicio, String dataFim) {
 
-        if (!cliente.isValido()) {
-            throw new IllegalArgumentException("Cliente com dados inválidos.");
-        }
+        List<QuartoAbstrato> quartosDisponiveis = negocioCliente.listarQuartosDisponiveisNoPeriodo();
 
-        if (quarto == null || inicio == null || fim == null || !inicio.isBefore(fim)) {
-            throw new IllegalArgumentException("Dados de reserva inválidos: verifique quarto e datas.");
-        }
+    }
+
+    public void fazerReserva(String numeroDeQuarto) throws ClienteNaoEncontradoException, ClienteInvalidoException {
+        Cliente cliente = negocioCliente.buscarClientePorCpf(cpf);
+
+
 
         Reserva reserva = new Reserva(cliente, quarto, inicio, fim);
         try {
@@ -50,16 +53,22 @@ public class FachadaCliente {
         }
     }
 
-    public Cliente buscarClientePorCpf(String cpf) {
-        return repositorioClientes.buscarClientePorCpf(cpf);
-    }
+    public String consultarHistorico(String cpf) {
+            Cliente cliente = negocioCliente.buscarClientePorCpf(cpf);
 
-    public List<Reserva> consultarHistorico(String cpf) {
-        Cliente cliente = buscarClientePorCpf(cpf);
-        if (cliente == null) {
-            throw new IllegalArgumentException("Cliente com CPF " + cpf + " não encontrado.");
-        }
-        return negocioCliente.consultarHistorico(cliente);
+            List<Reserva> historicoReservas = negocioCliente.consultarHistorico(cliente);
+            String historicoFormatado = "";
+            if (historicoReservas != null && !historicoReservas.isEmpty()){
+                historicoFormatado += "Histórico de Reservas com cpf " + cpf + ":\n";
+                for(Reserva reserva : historicoReservas){
+                    historicoFormatado += "Reserva para " + reserva.getCliente()
+                            + " de " + reserva.getDataInicio()
+                            + "até " + reserva.getDataFim();
+                }
+            }else{
+                historicoFormatado += "Nenhum histórico de reservas encontrado!";
+            }
+            return historicoFormatado;
     }
 
     public void cancelarReserva(String cpf, String idReserva) throws ReservaInvalidaException,
@@ -80,4 +89,5 @@ public class FachadaCliente {
 
         negocioCliente.cancelarReserva(reserva);
     }
+
 }

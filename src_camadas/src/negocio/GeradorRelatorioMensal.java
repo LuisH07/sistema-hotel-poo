@@ -13,7 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 public class GeradorRelatorioMensal {
     private YearMonth mesAno;
