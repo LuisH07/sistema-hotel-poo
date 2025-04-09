@@ -85,6 +85,7 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
             return false;
         }
         return email.equals(cliente.getEmail());
+        
     }
 
     public Reserva buscarReservaPorId(String idReserva) {
