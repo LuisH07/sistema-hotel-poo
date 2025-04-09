@@ -1,40 +1,47 @@
 package fachada;
 
+import dados.quartos.RepositorioQuartos;
+import dados.relatorios.RepositorioRelatorios;
+import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.DataInvalidaException;
 import negocio.NegocioAssistenteFinanceiro;
-import java.time.LocalDate;
+
 import java.time.YearMonth;
 
 public class FachadaAssistenteFinanceiro {
     private NegocioAssistenteFinanceiro negocioAssistenteFinanceiro;
 
-    public FachadaAssistenteFinanceiro(NegocioAssistenteFinanceiro negocioAssistenteFinanceiro) {
-        this.negocioAssistenteFinanceiro = negocioAssistenteFinanceiro;
+    public FachadaAssistenteFinanceiro(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos, RepositorioRelatorios repositorioRelatorios) {
+        negocioAssistenteFinanceiro = new NegocioAssistenteFinanceiro(repositorioReservas, repositorioQuartos,
+                repositorioRelatorios);
     }
 
     public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
         return negocioAssistenteFinanceiro.autenticar(email, senha);
     }
 
-    public void gerarRelatorio(String mes, String ano) throws ErroAoSalvarDadosException, IllegalArgumentException {
+    public void gerarRelatorio(String mesAno) throws ErroAoSalvarDadosException, DataInvalidaException {
         try {
-            int mesInt = Integer.parseInt(mes);
-            int anoInt = Integer.parseInt(ano);
+            String[] mesAnoArray = mesAno.split("/");
+            if (mesAnoArray.length != 2) {
+                throw new DataInvalidaException("Formato inválido. O formato esperado é MM/AAAA.");
+            }
+
+            int mesInt = Integer.parseInt(mesAnoArray[0]);
+            int anoInt = Integer.parseInt(mesAnoArray[1]);
 
             if (mesInt < 1 || mesInt > 12) {
-                throw new IllegalArgumentException("Mês inválido. Deve ser entre 1 e 12.");
+                throw new DataInvalidaException("Mês inválido. Deve ser entre 1 e 12.");
             }
 
-            if (anoInt < 2000 || anoInt > LocalDate.now().getYear() + 1) {
-                throw new IllegalArgumentException("Ano inválido.");
-            }
+            YearMonth yearMonth = YearMonth.of(anoInt, mesInt);
+            negocioAssistenteFinanceiro.gerarRelatorio(yearMonth);
 
-            YearMonth mesAno = YearMonth.of(anoInt, mesInt);
-            negocioAssistenteFinanceiro.gerarRelatorio(mesAno);
-
-        } catch (NumberFormatException excecao) {
-            throw new IllegalArgumentException("Mês e ano devem ser valores numéricos válidos.");
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException excecao) {
+            throw new DataInvalidaException("Mês e ano devem ser valores numéricos válidos no formato MM/AAAA.");
         }
     }
+
 }

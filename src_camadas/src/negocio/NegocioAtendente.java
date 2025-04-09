@@ -11,6 +11,15 @@ import excecoes.dados.*;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Classe que implementa a lógica de negócios para o Atendente.
+ * Oferece funcionalidades de autenticação, cancelamento de reservas,
+ * consulta de histórico, realização de check-in e check-out, e busca de reservas por ID.
+ * Implementa as interfaces {@link IFluxoReservas} e {@link IAutenticacao}.
+ *
+ * @author [Luiz Henrique]
+ * @author [Arthur]
+ */
 public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
 
     RepositorioReservas repositorioReservas;
@@ -21,12 +30,26 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
         this.repositorioQuartos = repositorioQuartos;
     }
 
+    /**
+     * Autentica um funcionário com base no email e senha fornecidos.
+     * Para o Atendente, verifica se as credenciais coincidem
+     * com as definidas para o cargo {@link Cargo#ATENDENTE}.
+     *
+     * @param email O email do funcionário.
+     * @param senha A senha do funcionário.
+     * @return {@code true} se a autenticação for bem-sucedida.
+     * @throws AutenticacaoFalhouException Se as credenciais forem inválidas.
+     */
     @Override
     public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
         if (!email.equals(Cargo.ATENDENTE.getEmail()) || !senha.equals(Cargo.ATENDENTE.getSenha())) {
             throw new AutenticacaoFalhouException("Credenciais inválidas.");
         }
         return true;
+    }
+
+    public List<Reserva> listarReservasAtivas() {
+        return repositorioReservas.listarReservasPorStatus(StatusDaReserva.ATIVA);
     }
 
     @Override
@@ -95,4 +118,9 @@ public class NegocioAtendente implements IFluxoReservas, IAutenticacao {
         }
         return reserva;
     }
+
+    public List<Reserva> listarReservasEmUso() {
+        return repositorioReservas.listarReservasPorStatus(StatusDaReserva.EM_USO);
+    }
+
 }

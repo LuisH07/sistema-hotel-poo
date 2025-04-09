@@ -3,6 +3,12 @@ package negocio.entidade;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
 
+/**
+ * Representa um cliente do sistema de reservas.
+ * Contém informações básicas do cliente como CPF, nome e email.
+ *
+ * @author [Maria Heloisa]
+ */
 public class Cliente {
     private String cpf;
     private String nome;

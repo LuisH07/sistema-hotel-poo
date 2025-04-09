@@ -8,6 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
 
+/**
+ * Repositório para armazenar e gerenciar informações de reservas.
+ * Esta classe permite adicionar, buscar, atualizar, remover e listar reservas,
+ * persistindo os dados em um arquivo. Também oferece métodos para listar reservas
+ * por cliente, status e quarto.
+ *
+ * @author [Luiz Henrique]
+ * @author [Maria Heloisa]
+ */
 public class RepositorioReservas {
 
     private List<Reserva> reservas;
@@ -52,6 +61,16 @@ public class RepositorioReservas {
                 .orElse(null);
     }
 
+    /**
+     * Atualiza os dados de uma reserva existente no repositório. A reserva é identificada pelo ID.
+     * Se uma reserva com o mesmo ID da nova reserva for encontrada, seus dados serão substituídos
+     * pelos dados da nova reserva e a lista atualizada será salva no arquivo.
+     *
+     * @param novaReserva A reserva com os dados atualizados. O ID da nova reserva é usado para
+     * identificar a reserva a ser atualizada.
+     * @throws ErroAoSalvarDadosException Se ocorrer um erro ao salvar os dados no arquivo
+     * após a atualização da reserva.
+     */
     public void atualizarReserva(Reserva novaReserva) throws ErroAoSalvarDadosException {
         for (int indice = 0; indice < reservas.size(); indice++) {
             Reserva reserva = reservas.get(indice);

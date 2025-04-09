@@ -17,6 +17,14 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Classe que implementa a lógica de negócios para o Gerente.
+ * Oferece funcionalidades de autenticação, cancelamento de reservas,
+ * consulta de histórico de reservas e geração de relatórios gerenciais mensais.
+ * Implementa as interfaces {@link IFluxoReservas}, {@link IFluxoRelatorio} e {@link IAutenticacao}.
+ *
+ * @author [Luiz Henrique]
+ */
 public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio, IAutenticacao {
 
     private RepositorioReservas repositorioReservas;
@@ -121,6 +129,10 @@ public class NegocioGerente implements IFluxoReservas, IFluxoRelatorio, IAutenti
             throw new ReservaInvalidaException("Informações de reserva inválidas!");
         }
         return reserva;
+    }
+
+    public List<Reserva> listarReservasAtivas() {
+        return repositorioReservas.listarReservasPorStatus(StatusDaReserva.ATIVA);
     }
 
 }

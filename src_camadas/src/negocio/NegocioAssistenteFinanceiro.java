@@ -11,6 +11,14 @@ import negocio.entidade.enums.CategoriaDoQuarto;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Classe que implementa a lógica de negócios para o Assistente Financeiro.
+ * Oferece funcionalidades de autenticação e geração de relatórios financeiros mensais.
+ * Implementa as interfaces {@link IAutenticacao} e {@link IFluxoRelatorio}.
+ *
+ * @author [Luiz Henrique]
+ * @author [Maria Heloisa]
+ */
 public class NegocioAssistenteFinanceiro implements IAutenticacao, IFluxoRelatorio {
 
     private RepositorioReservas repositorioReservas;
@@ -24,6 +32,16 @@ public class NegocioAssistenteFinanceiro implements IAutenticacao, IFluxoRelator
         this.repositorioRelatorios = repositorioRelatorios;
     }
 
+    /**
+     * Autentica um funcionário com base no email e senha fornecidos.
+     * Para o Assistente Financeiro, verifica se as credenciais coincidem
+     * com as definidas para o cargo {@link Cargo#ASSISTENTE_FINANCEIRO}.
+     *
+     * @param email O email do funcionário.
+     * @param senha A senha do funcionário.
+     * @return {@code true} se a autenticação for bem-sucedida.
+     * @throws AutenticacaoFalhouException Se as credenciais forem inválidas.
+     */
     @Override
     public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
         if (!email.equals(Cargo.ASSISTENTE_FINANCEIRO.getEmail()) || !senha.equals(Cargo.ASSISTENTE_FINANCEIRO.getSenha())) {
@@ -32,6 +50,15 @@ public class NegocioAssistenteFinanceiro implements IAutenticacao, IFluxoRelator
         return true;
     }
 
+    /**
+     * Gera um relatório financeiro mensal para o mês e ano especificados.
+     * O relatório inclui informações sobre receita total, receita por categoria de quarto,
+     * receita perdida com cancelamentos, ticket médio por cliente e valores médios por diária e reserva.
+     * O relatório é salvo em um arquivo de texto.
+     *
+     * @param mesAno O mês e ano para o qual o relatório deve ser gerado.
+     * @throws ErroAoSalvarDadosException Se ocorrer um erro ao salvar o relatório no arquivo.
+     */
     @Override
     public void gerarRelatorio(YearMonth mesAno) throws ErroAoSalvarDadosException {
         GeradorRelatorioMensal geradorRelatorio = new GeradorRelatorioMensal(mesAno, repositorioReservas, repositorioQuartos);

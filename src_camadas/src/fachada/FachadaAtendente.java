@@ -13,12 +13,27 @@ import java.util.List;
 public class FachadaAtendente {
     private NegocioAtendente negocioAtendente;
 
-    public FachadaAtendente(NegocioAtendente negocioAtendente) {
-        this.negocioAtendente = negocioAtendente;
+    public FachadaAtendente(RepositorioReservas repositorioReservas, RepositorioQuartos repositorioQuartos) {
+        negocioAtendente = new NegocioAtendente(repositorioReservas, repositorioQuartos);
     }
 
     public boolean autenticar(String email, String senha) throws AutenticacaoFalhouException {
         return negocioAtendente.autenticar(email, senha);
+    }
+
+    public String listarReservasAtivas() {
+        List<Reserva> reservasAtivas = negocioAtendente.listarReservasAtivas();
+
+        StringBuilder listaDeReservasAtivas = new StringBuilder();
+        if (reservasAtivas != null && !reservasAtivas.isEmpty()){
+            listaDeReservasAtivas.append("Reservas ativas: \n\n");
+            for (Reserva reserva : reservasAtivas) {
+                listaDeReservasAtivas.append(reserva.toString());
+            }
+        } else{
+            listaDeReservasAtivas.append("Nenhuma reserva ativa encontrada!");
+        }
+        return listaDeReservasAtivas.toString();
     }
 
     public void cancelarReserva(String idReserva) throws ReservaInvalidaException,
@@ -28,8 +43,18 @@ public class FachadaAtendente {
         negocioAtendente.cancelarReserva(reserva);
     }
 
-    public List<Reserva> consultarHistorico() {
-        return negocioAtendente.consultarHistorico();
+    public String consultarHistorico() {
+        List<Reserva> historicoReservas = negocioAtendente.consultarHistorico();
+        StringBuilder historicoFormatado = new StringBuilder();
+        if (historicoReservas != null && !historicoReservas.isEmpty()){
+            historicoFormatado.append("Histórico de Reservas: \n\n");
+            for (Reserva reserva : historicoReservas) {
+                historicoFormatado.append(reserva.toString());
+            }
+        } else{
+            historicoFormatado.append("Nenhum histórico de reservas encontrado!");
+        }
+        return historicoFormatado.toString();
     }
 
     public void fazerCheckIn(String idReserva) throws ReservaNaoEncontradaException,
@@ -45,4 +70,20 @@ public class FachadaAtendente {
         Reserva reserva = negocioAtendente.buscarReservaPorId(idReserva);
         negocioAtendente.fazerCheckOut(reserva);
     }
+
+    public String listarReservasEmUso() {
+        List<Reserva> reservasAtivas = negocioAtendente.listarReservasEmUso();
+
+        StringBuilder listaDeReservasAtivas = new StringBuilder();
+        if (reservasAtivas != null && !reservasAtivas.isEmpty()){
+            listaDeReservasAtivas.append("Reservas Em Uso: \n\n");
+            for (Reserva reserva : reservasAtivas) {
+                listaDeReservasAtivas.append(reserva.toString());
+            }
+        } else{
+            listaDeReservasAtivas.append("Nenhuma reserva em uso encontrada!");
+        }
+        return listaDeReservasAtivas.toString();
+    }
+
 }

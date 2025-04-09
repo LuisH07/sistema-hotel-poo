@@ -3,6 +3,13 @@ package negocio.entidade;
 import negocio.entidade.enums.CapacidadeDoQuarto;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
+/**
+ * Representa um quarto de categoria Standard.
+ * Herda da classe abstrata {@link QuartoAbstrato} e implementa a lógica
+ * específica para o cálculo do preço da diária e define sua categoria.
+ *
+ * @author [Maria Heloisa]
+ */
 public class Standard extends QuartoAbstrato {
 
     private final CategoriaDoQuarto CATEGORIA = CategoriaDoQuarto.STANDARD;

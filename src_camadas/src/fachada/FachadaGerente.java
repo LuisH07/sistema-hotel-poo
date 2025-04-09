@@ -5,12 +5,12 @@ import dados.quartos.RepositorioQuartos;
 import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoSalvarDadosException;
 import excecoes.negocio.autenticacao.AutenticacaoFalhouException;
+import excecoes.negocio.autenticacao.DataInvalidaException;
 import excecoes.negocio.reserva.ReservaInvalidaException;
 import excecoes.negocio.reserva.ReservaNaoEncontradaException;
 import negocio.NegocioGerente;
 import negocio.entidade.Reserva;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -27,8 +27,33 @@ public class FachadaGerente {
         return negocioGerente.autenticar(email, senha);
     }
 
-    public List<Reserva> consultarHistorico() {
-        return negocioGerente.consultarHistorico();
+    public String consultarHistorico() {
+        List<Reserva> historicoReservas = negocioGerente.consultarHistorico();
+        StringBuilder historicoFormatado = new StringBuilder();
+        if (historicoReservas != null && !historicoReservas.isEmpty()){
+            historicoFormatado.append("Histórico de Reservas: \n\n");
+            for (Reserva reserva : historicoReservas) {
+                historicoFormatado.append(reserva.toString());
+            }
+        } else{
+            historicoFormatado.append("Nenhum histórico de reservas encontrado!");
+        }
+        return historicoFormatado.toString();
+    }
+
+    public String listarReservasAtivas() {
+        List<Reserva> reservasAtivas = negocioGerente.listarReservasAtivas();
+
+        StringBuilder listaDeReservasAtivas = new StringBuilder();
+        if (reservasAtivas != null && !reservasAtivas.isEmpty()){
+            listaDeReservasAtivas.append("Reservas ativas: \n\n");
+            for (Reserva reserva : reservasAtivas) {
+                listaDeReservasAtivas.append(reserva.toString());
+            }
+        } else{
+            listaDeReservasAtivas.append("Nenhuma reserva ativa encontrada!");
+        }
+        return listaDeReservasAtivas.toString();
     }
 
     public void cancelarReserva(String idReserva) throws ReservaInvalidaException,
@@ -38,24 +63,25 @@ public class FachadaGerente {
         negocioGerente.cancelarReserva(reserva);
     }
 
-    public void gerarRelatorio(String mes, String ano) throws ErroAoSalvarDadosException, IllegalArgumentException {
+    public void gerarRelatorio(String mesAno) throws ErroAoSalvarDadosException, DataInvalidaException {
         try {
-            int mesInt = Integer.parseInt(mes);
-            int anoInt = Integer.parseInt(ano);
+            String[] mesAnoArray = mesAno.split("/");
+            if (mesAnoArray.length != 2) {
+                throw new DataInvalidaException("Formato inválido. O formato esperado é MM/AAAA.");
+            }
+
+            int mesInt = Integer.parseInt(mesAnoArray[0]);
+            int anoInt = Integer.parseInt(mesAnoArray[1]);
 
             if (mesInt < 1 || mesInt > 12) {
-                throw new IllegalArgumentException("Mês inválido. Deve ser entre 1 e 12.");
+                throw new DataInvalidaException("Mês inválido. Deve ser entre 1 e 12.");
             }
 
-            if (anoInt < 2000 || anoInt > LocalDate.now().getYear() + 1) {
-                throw new IllegalArgumentException("Ano inválido.");
-            }
+            YearMonth yearMonth = YearMonth.of(anoInt, mesInt);
+            negocioGerente.gerarRelatorio(yearMonth);
 
-            YearMonth mesAno = YearMonth.of(anoInt, mesInt);
-            negocioGerente.gerarRelatorio(mesAno);
-
-        } catch (NumberFormatException excecao) {
-            throw new IllegalArgumentException("Mês e ano devem ser valores numéricos válidos.");
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException excecao) {
+            throw new DataInvalidaException("Mês e ano devem ser valores numéricos válidos no formato MM/AAAA.");
         }
     }
 

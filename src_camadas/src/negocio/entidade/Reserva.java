@@ -6,6 +6,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Representa uma reserva de quarto feita por um cliente.
+ * Contém informações sobre o cliente, o quarto reservado, as datas da reserva,
+ * o valor da diária, o valor total e o status da reserva.
+ *
+ * @author [Maria Heloisa]
+ */
 public class Reserva {
     private String idReserva;
     private Cliente cliente;

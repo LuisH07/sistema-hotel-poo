@@ -14,6 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Classe responsável por gerar relatórios mensais sobre as reservas e ocupação do hotel.
+ * Calcula diversas métricas como quantidade de reservas, taxa de cancelamento,
+ * taxa de ocupação, média de permanência, quartos mais reservados e receita total.
+ *
+ * @author [Luis Henrique]
+ * @author [Arthur]
+ * @author [Maria Heloisa]
+ */
 public class GeradorRelatorioMensal {
     private YearMonth mesAno;
     private List<Reserva> reservasDoMes;

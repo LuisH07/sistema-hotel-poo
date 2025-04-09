@@ -27,6 +27,15 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Classe que implementa a lógica de negócios para o Cliente.
+ * Oferece funcionalidades de autenticação, realização e cancelamento de reservas,
+ * cadastro e busca de clientes, busca de quartos, listagem de quartos disponíveis
+ * e consulta de histórico de reservas.
+ * Implementa as interfaces {@link IFluxoReservas} e {@link IAutenticacao}.
+ *
+ * @author [Maria Heloisa]
+ */
 public class NegocioCliente implements IFluxoReservas, IAutenticacao {
 
     private RepositorioClientes repositorioClientes;
@@ -146,19 +155,20 @@ public class NegocioCliente implements IFluxoReservas, IAutenticacao {
                 repositorioReservas.listarReservasPorStatus(StatusDaReserva.EM_USO).stream()
         ).toList();
 
-        return todosQuartos.stream().filter(quarto -> {
-            return reservasAtivasOuEmUso.stream().filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(quarto.getNumeroIdentificador())).noneMatch(reserva -> reserva.getDataInicio().isBefore(dataFim) && reserva.getDataFim().isAfter(dataInicio));
-        }).toList();
+        return todosQuartos.stream().filter(quarto -> reservasAtivasOuEmUso.stream().filter(reserva -> reserva.getQuarto().getNumeroIdentificador().equals(quarto.getNumeroIdentificador())).noneMatch(reserva -> reserva.getDataInicio().isBefore(dataFim) && reserva.getDataFim().isAfter(dataInicio))).toList();
     }
 
-    private LocalDate validarData(String dataString) {
+    public LocalDate converterDataStringParaLocalDate(String dataString) throws DataInvalidaException {
         DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         try {
-            LocalDate dataLocalDate = LocalDate.parse(dataString, formatador);
-            return dataLocalDate;
+            return LocalDate.parse(dataString, formatador);
         } catch (DateTimeParseException excecao) {
             throw new DataInvalidaException("Data inválida. O formato esperado é dd/MM/yyyy");
         }
+    }
+
+    public List<Reserva> listarReservasAtivasPorCliente(String cpf) {
+        return repositorioReservas.listarReservasPorCliente(cpf).stream().filter(reserva -> reserva.getStatus().equals(StatusDaReserva.ATIVA)).toList();
     }
 
 }

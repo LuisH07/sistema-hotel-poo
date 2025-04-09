@@ -3,6 +3,15 @@ package negocio.entidade;
 import negocio.entidade.enums.CapacidadeDoQuarto;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
+/**
+ * Representa um quarto de categoria Suite.
+ * Herda da classe abstrata {@link QuartoAbstrato} e implementa a lógica
+ * específica para o cálculo do preço da diária (incluindo uma taxa adicional)
+ * e define sua categoria.
+ *
+ * @author [Arthur]
+ * @author [Maria Heloisa]
+ */
 public class Suite extends QuartoAbstrato {
 
     private final CategoriaDoQuarto CATEGORIA = CategoriaDoQuarto.SUITE;
