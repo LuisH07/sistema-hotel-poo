@@ -85,5 +85,6 @@ public class NegocioCliente implements IFluxoReservas {
             return false;
         }
         return email.equals(cliente.getEmail());
+        
     }
 }
