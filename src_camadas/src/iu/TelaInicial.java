@@ -21,9 +21,9 @@ public class TelaInicial {
             System.out.println("2 - Funcionário");
             System.out.println("0 - Sair");
 
-            String operacao = scanner.nextLine();
+            String opcao = scanner.nextLine();
 
-            switch (operacao) {
+            switch (opcao) {
                 case "1":
                     telaCliente.iniciar();
                     break;
