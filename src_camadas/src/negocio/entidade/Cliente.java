@@ -1,7 +1,8 @@
 package negocio.entidade;
 
-import dados.reserva.RepositorioReservas;
 import excecoes.dados.ErroAoCarregarDadosException;
+
+import java.io.Serializable;
 
 /**
  * Representa um cliente do sistema de reservas.
@@ -9,12 +10,11 @@ import excecoes.dados.ErroAoCarregarDadosException;
  *
  * @author [Maria Heloisa]
  */
-public class Cliente {
+public class Cliente implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String nome;
     private String email;
     private String cpf;
-
-    private RepositorioReservas repositorioReservas;
 
     public Cliente(String nome, String email, String cpf) throws ErroAoCarregarDadosException {
         this.nome = nome;

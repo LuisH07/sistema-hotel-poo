@@ -3,6 +3,8 @@ package negocio.entidade;
 import negocio.entidade.enums.CapacidadeDoQuarto;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
+import java.io.Serializable;
+
 /**
  * Representa um quarto de categoria Standard.
  * Herda da classe abstrata {@link QuartoAbstrato} e implementa a lógica
@@ -10,7 +12,8 @@ import negocio.entidade.enums.CategoriaDoQuarto;
  *
  * @author [Maria Heloisa]
  */
-public class Standard extends QuartoAbstrato {
+public class Standard extends QuartoAbstrato implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     private final CategoriaDoQuarto CATEGORIA = CategoriaDoQuarto.STANDARD;
     private static final double VALOR_BASE = 50.0;

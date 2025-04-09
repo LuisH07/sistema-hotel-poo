@@ -26,8 +26,9 @@ public class RepositorioQuartos {
         } catch (FileNotFoundException excecao) {
             return new ArrayList<>();
         } catch (IOException | ClassNotFoundException excecao) {
-            throw new ErroAoCarregarDadosException("Falha ao carregar quartos do arquivo");
+        throw new ErroAoCarregarDadosException("Falha ao carregar quartos do arquivo", excecao);
         }
+
     }
 
     private void inicializarQuartos() {

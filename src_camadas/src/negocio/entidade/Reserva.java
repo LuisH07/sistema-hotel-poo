@@ -2,6 +2,7 @@ package negocio.entidade;
 
 import negocio.entidade.enums.StatusDaReserva;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,7 +14,8 @@ import java.time.format.DateTimeFormatter;
  *
  * @author [Maria Heloisa]
  */
-public class Reserva {
+public class Reserva implements Serializable {
+    private static final long serialVersionUID = 1L;
     private String idReserva;
     private Cliente cliente;
     private QuartoAbstrato quarto;

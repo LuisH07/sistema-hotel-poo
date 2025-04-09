@@ -3,6 +3,8 @@ package negocio.entidade;
 import negocio.entidade.enums.CapacidadeDoQuarto;
 import negocio.entidade.enums.CategoriaDoQuarto;
 
+import java.io.Serializable;
+
 /**
  * Classe abstrata que representa um quarto de hotel.
  * Contém informações como número de identificação, capacidade e preço da diária.
@@ -11,7 +13,9 @@ import negocio.entidade.enums.CategoriaDoQuarto;
  *
  * @author [Arthur]
  */
-public abstract class QuartoAbstrato {
+public abstract class QuartoAbstrato implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     private final String numeroIdentificador;
     private CapacidadeDoQuarto capacidade;
     private double precoDiaria;
